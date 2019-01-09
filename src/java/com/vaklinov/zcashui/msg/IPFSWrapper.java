@@ -51,6 +51,7 @@ import com.cabecinha84.zcashui.ZcashJFileChooser;
 import com.cabecinha84.zcashui.ZcashJFrame;
 
 import com.vaklinov.zcashui.CommandExecutor;
+import com.vaklinov.zcashui.LanguageUtil;
 import com.vaklinov.zcashui.Log;
 import com.vaklinov.zcashui.OSUtil;
 import com.vaklinov.zcashui.OSUtil.OS_TYPE;
@@ -73,6 +74,7 @@ public class IPFSWrapper
 	private final Pattern ipfsUrlPattern = Pattern.compile(
 		"https?://[a-zA-Z0-9\\.\\-]+(:[0-9]{2,5})?/ipfs/[a-zA-Z0-9]{15,100}"); 
 	
+	private static LanguageUtil langUtil = LanguageUtil.instance();
 	
 	public IPFSWrapper(ZcashJFrame parentFrame)
 	{
@@ -121,7 +123,7 @@ public class IPFSWrapper
 		throws IOException, InterruptedException
 	{
 		ZcashJFileChooser fileChooser = new ZcashJFileChooser();
-		fileChooser.setDialogTitle("Share file via IPFS...");
+		fileChooser.setDialogTitle(langUtil.getString("ipfs.wrapper.file.share"));
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		 
 		int result = fileChooser.showOpenDialog(this.parentFrame);
@@ -167,11 +169,8 @@ public class IPFSWrapper
 			
 			JOptionPane.showMessageDialog(
 				this.parentFrame, 
-				"The file " + f.getName() + " has been shared successfully via IPFS. It may be\n" +
-				"reached by other users (who have a local IPFS server running) via IPFS link: \n" +
-				"http://localhost:8080/ipfs/" + strResponse + "\n\n" +
-				"The link has been added to the messaging text box and also copied to the clipboard.\n", 
-				"File shared successfully", JOptionPane.INFORMATION_MESSAGE);
+				langUtil.getString("ipfs.wrapper.file.shared", f.getName(), strResponse),
+				langUtil.getString("ipfs.wrapper.file.shared.successfuly"), JOptionPane.INFORMATION_MESSAGE);
 			
 			return "[" + f.getName() + "](" +
 			       "http://localhost:8080/ipfs/" + strResponse + ")";
@@ -181,9 +180,8 @@ public class IPFSWrapper
 			
 			JOptionPane.showMessageDialog(
 				this.parentFrame, 
-				"An unexpected error occurred while sharing file via IPFS!" +
-				"\n" + wce.getMessage().replace(",", ",\n"),
-				"Error in importing wallet private keys...", JOptionPane.ERROR_MESSAGE);
+				langUtil.getString("ipfs.wrapper.file.shared.unexpected.error", wce.getMessage().replace(",", ",\n")),
+				langUtil.getString("ipfs.wrapper.file.error.importing.private.keys"), JOptionPane.ERROR_MESSAGE);
 			return null;
 		} finally
 		{
@@ -227,10 +225,8 @@ public class IPFSWrapper
 		{
 	        JOptionPane.showMessageDialog(
 	        	this.parentFrame,
-	        	"The IPFS executables are expected to be found in directory:\n" +
-	        	dir.getCanonicalPath() + "\n" +
-	        	"However this directory is missing! IPFS cannot be started!", 
-	        	"IPFS directory is not available", JOptionPane.ERROR_MESSAGE);
+	        	langUtil.getString("ipfs.wrapper.file.not.found", dir.getCanonicalPath()),
+				langUtil.getString("ipfs.wrapper.directory.not.available"), JOptionPane.ERROR_MESSAGE);
 		    return false;
 		}
 		
@@ -239,11 +235,8 @@ public class IPFSWrapper
 		{
 	        JOptionPane.showMessageDialog(
 	        	this.parentFrame,
-	        	"The IPFS command executable:\n" +
-	        	ipfsCmd.getCanonicalPath() + "\n" +
-	        	"needs to be available in order to start an IPFS Server on this PC." +
-	        	"However this executable file is missing! IPFS cannot be started!", 
-	        	"IPFS executable is not available", JOptionPane.ERROR_MESSAGE);
+	        	langUtil.getString("ipfs.wrapper.executable.error", ipfsCmd.getCanonicalPath()),
+				langUtil.getString("ipfs.wrapper.executable.not.found"), JOptionPane.ERROR_MESSAGE);
 		    return false;
 		}
 		
@@ -313,26 +306,16 @@ public class IPFSWrapper
             return true;
         } 
 		
-		Object[] options = { "Yes", "No", "Yes and do not show this message again" };
+		Object[] options = { 
+			langUtil.getString("ipfs.wrapper.options.yes"),
+			langUtil.getString("ipfs.wrapper.options.no"),
+			langUtil.getString("ipfs.wrapper.options.yesand"),
+			};
 
 		int option = JOptionPane.showOptionDialog(
 			this.parentFrame, 
-			"This operation will start an IPFS server on your PC to enable file sharing.\n"      +
-			"As a result your PC will become a node in the Inter-Planetary File System that\n"   +
-			"enables distributed sharing of information. Before proceeding with IPFS, please\n"  +
-			"make sure you understand the full implications of this by getting familiar with\n"  +
-			"the details of IPFS at this web site: https://ipfs.io/\n"                           +
-			"\n"                                                                                 +
-			"The IPFS server needs TCP ports 4001, 5001, 8080 on the system for its own use!\n"  +
-			"The IPFS server will be stopped automatically if you quit the Zcash wallet. To\n" +
-			"ensure that your contacts can reach the data you share, you may not quit the\n"     +
-			"wallet for as long as you expect your contacts to access the data. The data you\n"  + 
-			"share over IPFS is public - may be accessed by anyone! The IPFS server startup\n"   +
-			"may take some seconds so please be patient...\n"                                    +
-// TODO: firewalled warning
-			"\n"                                                                                 +
-			"Do you wish to start an IPFS server on your PC?", 
-			"Confirm starting an IPFS server...",
+			langUtil.getString("ipfs.wrapper.user.consent"),
+			langUtil.getString("ipfs.wrapper.confirm"),
 			JOptionPane.DEFAULT_OPTION, 
 			JOptionPane.INFORMATION_MESSAGE,
 			null, 

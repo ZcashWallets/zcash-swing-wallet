@@ -6,7 +6,7 @@ import javax.swing.JTabbedPane;
 
 public class ZcashJTabbedPane extends JTabbedPane {
 	private Color backGroundColor = ZcashXUI.tabbedpane;
-	private static Color textColor = ZcashXUI.text;
+	private Color textColor = ZcashXUI.text;
 	public ZcashJTabbedPane() {
 		super();
 		this.setBackground(backGroundColor);

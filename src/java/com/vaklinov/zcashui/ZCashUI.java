@@ -43,11 +43,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
@@ -193,8 +191,8 @@ public class ZCashUI
         ZcashJMenu file = new ZcashJMenu(langUtil.getString("menu.label.main"));
         file.setMnemonic(KeyEvent.VK_M);
         int accelaratorKeyMask = Toolkit.getDefaultToolkit ().getMenuShortcutKeyMask();
-        file.add(menuItemZcashXUI = new ZcashJMenuItem(langUtil.getString("menu.label.zcashui"), KeyEvent.VK_Z));
-        menuItemZcashXUI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, accelaratorKeyMask));
+        file.add(menuItemZcashXUI = new ZcashJMenuItem(langUtil.getString("menu.label.zcashui"), KeyEvent.VK_U));
+        menuItemZcashXUI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, accelaratorKeyMask));
         file.add(menuItemAbout = new ZcashJMenuItem(langUtil.getString("menu.label.about"), KeyEvent.VK_T));
         menuItemAbout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, accelaratorKeyMask));
         file.addSeparator();
@@ -225,8 +223,8 @@ public class ZCashUI
         messaging.setMnemonic(KeyEvent.VK_S);
         messaging.add(menuItemOwnIdentity = new ZcashJMenuItem(langUtil.getString("menu.label.own.identity"), KeyEvent.VK_D));
         menuItemOwnIdentity.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, accelaratorKeyMask));        
-        messaging.add(menuItemExportOwnIdentity = new ZcashJMenuItem(langUtil.getString("menu.label.export.own.identity"), KeyEvent.VK_X));
-        menuItemExportOwnIdentity.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, accelaratorKeyMask));        
+        messaging.add(menuItemExportOwnIdentity = new ZcashJMenuItem(langUtil.getString("menu.label.export.own.identity"), KeyEvent.VK_L));
+        menuItemExportOwnIdentity.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, accelaratorKeyMask));        
         messaging.add(menuItemAddMessagingGroup = new ZcashJMenuItem(langUtil.getString("menu.label.add.messaging.group"), KeyEvent.VK_G));
         menuItemAddMessagingGroup.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, accelaratorKeyMask));
         messaging.add(menuItemImportContactIdentity = new ZcashJMenuItem(langUtil.getString("menu.label.import.contact.identity"), KeyEvent.VK_Y));
@@ -578,7 +576,8 @@ public class ZCashUI
 		
 		this.pack();
 		Dimension currentSize = this.getSize();
-		
+
+		new ZcashXUI();
 		OS_TYPE os = OSUtil.getOSType();
 		int width = 1040;
 		if (os == OS_TYPE.MAC_OS)
@@ -642,6 +641,7 @@ public class ZCashUI
             {
             	// The MacOS L&F is active by default - the property sets the menu bar Mac style
             	System.setProperty("apple.laf.useScreenMenuBar", "true");
+                System.setProperty("com.apple.mrj.application.apple.menu.about.name", LanguageUtil.instance().getString("apple.menu.about.name"));
             }
             else
             {            
@@ -689,7 +689,7 @@ public class ZCashUI
                 }
             }
             if (false == AppLock.lock()) {
-                throw new Exception("Duplicate instante detected.");
+                throw new Exception(LanguageUtil.instance().getString("duplicate.instante.detected"));
             }
             installShutdownHook();
             new ZcashXUI();

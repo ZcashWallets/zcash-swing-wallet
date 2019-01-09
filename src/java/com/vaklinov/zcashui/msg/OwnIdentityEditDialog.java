@@ -37,6 +37,7 @@ import javax.swing.JOptionPane;
 import com.cabecinha84.zcashui.ZcashJButton;
 import com.cabecinha84.zcashui.ZcashJFrame;
 
+import com.vaklinov.zcashui.LanguageUtil;
 import com.vaklinov.zcashui.Log;
 import com.vaklinov.zcashui.StatusUpdateErrorReporter;
 
@@ -49,6 +50,8 @@ public class OwnIdentityEditDialog
 {
 	private MessagingStorage storage;
 	private StatusUpdateErrorReporter errorReporter;
+
+	private static LanguageUtil langUtil = LanguageUtil.instance();
 	
 	public OwnIdentityEditDialog(ZcashJFrame parent, MessagingIdentity identity, 
 			                     MessagingStorage storage, StatusUpdateErrorReporter errorReporter, boolean identityIsBeingCreated)
@@ -58,13 +61,9 @@ public class OwnIdentityEditDialog
 		this.storage       = storage;
 		this.errorReporter = errorReporter;
 		
-		this.setTitle("Own messaging identity - edit...");
+		this.setTitle(langUtil.getString("ownidentity.title"));
 		
-		this.infoLabel.setText(
-			"<html><span style=\"font-size:0.97em;\">" +
-			"The fields below make up your messaging identity. This information is meant to be " +
-			"shared with other users.<br/> The only mandatory field is the \"Nick name\"." +
-			"</span>");
+		this.infoLabel.setText(langUtil.getString("ownidentity.infolabel"));
 		
 		nicknameTextField.setEditable(true);
 		firstnameTextField.setEditable(true);
@@ -98,8 +97,8 @@ public class OwnIdentityEditDialog
 					{
 				        JOptionPane.showMessageDialog(
 			        		OwnIdentityEditDialog.this.parentFrame,
-			        		"The nick name field is empty. It is mandatory - please fill it.",
-			                "Mandatory data missing", JOptionPane.ERROR_MESSAGE);
+			        		langUtil.getString("ownidentity.nickname.message"),
+			                langUtil.getString("ownidentity.mandatory.data"), JOptionPane.ERROR_MESSAGE);
 				        return;
 					}
 					
