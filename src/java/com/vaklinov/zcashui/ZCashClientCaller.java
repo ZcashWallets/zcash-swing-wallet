@@ -146,19 +146,30 @@ public class ZCashClientCaller
 	}
 
 	
-	public synchronized Process startDaemon() 
+	public synchronized Process startDaemon(boolean reindex) 
 		throws IOException, InterruptedException 
 	{
 		String exportDir = OSUtil.getUserHomeDirectory().getCanonicalPath();
-		
-	    CommandExecutor starter = new CommandExecutor(
-	        new String[] 
-	        {
-	        	zcashd.getCanonicalPath(), 
-	        	"-exportdir=" + wrapStringParameter(exportDir)
-	        });
+		if (reindex == true) {
+	  	  	CommandExecutor starter = new CommandExecutor(
+	 	       new String[] 
+				{
+	  	      		zcashd.getCanonicalPath(), 
+	        		"-exportdir=" + wrapStringParameter(exportDir),
+					"-reindex"
+	       	});
+
+ 	  		return starter.startChildProcess();
+		} else {
+			CommandExecutor starter = new CommandExecutor(
+	        	new String[] 
+	        	{
+	        		zcashd.getCanonicalPath(), 
+	        		"-exportdir=" + wrapStringParameter(exportDir)
+	    	});
 	    
 	    return starter.startChildProcess();
+		}
 	}
 	
 	
@@ -1151,8 +1162,7 @@ public class ZCashClientCaller
 		} else if (strResult.trim().toLowerCase(Locale.ROOT).startsWith("error code:"))
 		{
  			 JsonObject respObject = Util.getJsonErrorMessage(strResult);
- 			 if ((respObject.getDouble("code", +123) == -1) &&
- 				 (respObject.getString("message", "ERR").indexOf("wrong network type") != -1))
+ 			 if (((respObject.getDouble("code", +123) == -1) && (respObject.getString("message", "ERR").indexOf("wrong network type") != -1)) || strResult.trim().toLowerCase(Locale.ROOT).indexOf("invalid spending key") != -1)
  			 {
  				 // Obviously T address - do nothing here
  			 } else

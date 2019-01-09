@@ -273,8 +273,7 @@ public class ZcashYUIEditDialog
 				tierThreeColor.setBackground(color3);
 				textColorTextField.setForeground(colorText);
 				messageSentTextField.setForeground(colorMessageSent);
-				messageReceivedTextField.setForeground(colorMessageReceived);
-				ZcashYUIEditDialog.this.saveZCashUISettings();
+				messageReceivedTextField.setForeground(colorMessageReceived);	
 				saveSettings();
 				defaultsButton.setSelected(false);
 				defaultsButton.setFocusable(false);
@@ -303,8 +302,7 @@ public class ZcashYUIEditDialog
 				tierThreeColor.setBackground(color3);
 				textColorTextField.setForeground(colorText);
 				messageSentTextField.setForeground(colorMessageSent);
-				messageReceivedTextField.setForeground(colorMessageReceived);
-				ZcashYUIEditDialog.this.saveZCashUISettings();			
+				messageReceivedTextField.setForeground(colorMessageReceived);			
 				saveSettings();
 				whiteThemeButton.setSelected(false);
 				whiteThemeButton.setFocusable(false);
@@ -333,8 +331,7 @@ public class ZcashYUIEditDialog
 				tierThreeColor.setBackground(color3);
 				textColorTextField.setForeground(colorText);
 				messageSentTextField.setForeground(colorMessageSent);
-				messageReceivedTextField.setForeground(colorMessageReceived);
-				ZcashYUIEditDialog.this.saveZCashUISettings();			
+				messageReceivedTextField.setForeground(colorMessageReceived);		
 				saveSettings();
 				orangeThemeButton.setSelected(false);
 				orangeThemeButton.setFocusable(false);
@@ -363,8 +360,7 @@ public class ZcashYUIEditDialog
 				tierThreeColor.setBackground(color3);
 				textColorTextField.setForeground(colorText);
 				messageSentTextField.setForeground(colorMessageSent);
-				messageReceivedTextField.setForeground(colorMessageReceived);
-				ZcashYUIEditDialog.this.saveZCashUISettings();			
+				messageReceivedTextField.setForeground(colorMessageReceived);			
 				saveSettings();
 				greenThemeButton.setSelected(false);
 				greenThemeButton.setFocusable(false);
@@ -393,8 +389,7 @@ public class ZcashYUIEditDialog
 				tierThreeColor.setBackground(color3);
 				textColorTextField.setForeground(colorText);
 				messageSentTextField.setForeground(colorMessageSent);
-				messageReceivedTextField.setForeground(colorMessageReceived);
-				ZcashYUIEditDialog.this.saveZCashUISettings();			
+				messageReceivedTextField.setForeground(colorMessageReceived);		
 				saveSettings();
 				redThemeButton.setSelected(false);
 				redThemeButton.setFocusable(false);
@@ -424,7 +419,6 @@ public class ZcashYUIEditDialog
 				textColorTextField.setForeground(colorText);
 				messageSentTextField.setForeground(colorMessageSent);
 				messageReceivedTextField.setForeground(colorMessageReceived);
-				ZcashYUIEditDialog.this.saveZCashUISettings();
 				saveSettings();
 				blueThemeButton.setSelected(false);
 				blueThemeButton.setFocusable(false);
@@ -454,7 +448,6 @@ public class ZcashYUIEditDialog
 				textColorTextField.setForeground(colorText);
 				messageSentTextField.setForeground(colorMessageSent);
 				messageReceivedTextField.setForeground(colorMessageReceived);
-				ZcashYUIEditDialog.this.saveZCashUISettings();
 				saveSettings();
 				greyThemeButton.setSelected(false);
 				greyThemeButton.setFocusable(false);

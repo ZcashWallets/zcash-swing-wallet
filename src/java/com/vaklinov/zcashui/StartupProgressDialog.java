@@ -31,7 +31,7 @@ import com.vaklinov.zcashui.ZCashClientCaller.WalletCallException;
 public class StartupProgressDialog extends ZcashJFrame {
     
 
-    private static final int POLL_PERIOD = 1500;
+    private static final int POLL_PERIOD = 2000;
     private static final int STARTUP_ERROR_CODE = -28;
     
     private BorderLayout borderLayout1 = new BorderLayout();
@@ -111,7 +111,7 @@ public class StartupProgressDialog extends ZcashJFrame {
         }
         
         final Process daemonProcess = 
-        	shouldStartZCashd ? clientCaller.startDaemon() : null;
+        	shouldStartZCashd ? clientCaller.startDaemon(false) : null;
         
         Thread.sleep(POLL_PERIOD); // just a little extra
         
