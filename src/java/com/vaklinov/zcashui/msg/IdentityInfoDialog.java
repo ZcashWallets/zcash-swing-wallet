@@ -76,10 +76,10 @@ public class IdentityInfoDialog
 	protected ZcashJTextField facebookTextField;
 	protected ZcashJTextField twitterTextField;
 		
+	private static LanguageUtil langUtil = LanguageUtil.instance();
 	
 	public IdentityInfoDialog(ZcashJFrame parentFrame, MessagingIdentity identity)
 	{
-		LanguageUtil langUtil = LanguageUtil.instance();
 		this.parentFrame = parentFrame;
 		this.identity    = identity;
 		
@@ -91,28 +91,25 @@ public class IdentityInfoDialog
 			
 		ZcashJPanel tempPanel = new ZcashJPanel(new BorderLayout(0, 0));
 		tempPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-		infoLabel = new ZcashJLabel(
-				"<html><span style=\"font-size:0.97em;\">" +
-				"The information shown below pertains to contact " + identity.getNickname() + 
-			    "</span>");
+		infoLabel = new ZcashJLabel(langUtil.getString("dialog.identity.info.infolabel", identity.getNickname()));
 	    tempPanel.add(infoLabel, BorderLayout.CENTER);
 		this.getContentPane().add(tempPanel, BorderLayout.NORTH);
 			
 		ZcashJPanel detailsPanel = new ZcashJPanel();
 		detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
 		
-		addFormField(detailsPanel, "Nick name:",  nicknameTextField = new ZcashJTextField(40));
-		addFormField(detailsPanel, "First name:", firstnameTextField = new ZcashJTextField(40));
-		addFormField(detailsPanel, "Middle name:", middlenameTextField = new ZcashJTextField(40));
-		addFormField(detailsPanel, "Surname:",    surnameTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.nickname"),  nicknameTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.firstname"), firstnameTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.middlename"), middlenameTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.surname"),    surnameTextField = new ZcashJTextField(40));
 		
-		addFormField(detailsPanel, "E-mail:",         emailTextField = new ZcashJTextField(40));
-		addFormField(detailsPanel, "Street address:", streetaddressTextField = new ZcashJTextField(40));
-		addFormField(detailsPanel, "Facebook page:",  facebookTextField = new ZcashJTextField(40));
-		addFormField(detailsPanel, "Twitter page:",   twitterTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.email"),         emailTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.streetaddress"), streetaddressTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.facebook"),	  facebookTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.twitter"),   twitterTextField = new ZcashJTextField(40));
 		
-		addFormField(detailsPanel, "Sender identification T address:", senderidaddressTextField = new ZcashJTextField(40));
-		addFormField(detailsPanel, "Send/receive Z address:", sendreceiveaddressTextField = new ZcashJTextArea(2, 40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.sendert"), senderidaddressTextField = new ZcashJTextField(40));
+		addFormField(detailsPanel, langUtil.getString("dialog.identity.info.senderz"), sendreceiveaddressTextField = new ZcashJTextArea(2, 40));
 		sendreceiveaddressTextField.setLineWrap(true);
 		
 
@@ -144,7 +141,7 @@ public class IdentityInfoDialog
 		// Lower buttons - by default only close is available
 		buttonPanel = new ZcashJPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 3));
-		ZcashJButton closeButon = new ZcashJButton("Close");
+		ZcashJButton closeButon = new ZcashJButton(langUtil.getString("dialog.identity.info.button.close"));
 		buttonPanel.add(closeButon);
 		this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
@@ -170,7 +167,7 @@ public class IdentityInfoDialog
 		ZcashJPanel tempPanel = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
 		ZcashJLabel tempLabel = new ZcashJLabel(name, JLabel.RIGHT);
 		// TODO: hard sizing of labels may not scale!
-		final int width = new ZcashJLabel("Sender identification T address:").getPreferredSize().width + 10;
+		final int width = new ZcashJLabel(langUtil.getString("dialog.identity.info.sender.id")).getPreferredSize().width + 10;
 		tempLabel.setPreferredSize(new Dimension(width, tempLabel.getPreferredSize().height));
 		tempPanel.add(tempLabel);
 		tempPanel.add(field);

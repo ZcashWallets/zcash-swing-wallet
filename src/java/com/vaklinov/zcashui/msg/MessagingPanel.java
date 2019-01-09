@@ -82,6 +82,7 @@ import com.eclipsesource.json.JsonValue;
 import com.eclipsesource.json.WriterConfig;
 import com.vaklinov.zcashui.DataGatheringThread;
 import com.vaklinov.zcashui.LabelStorage;
+import com.vaklinov.zcashui.LanguageUtil;
 import com.vaklinov.zcashui.Log;
 import com.vaklinov.zcashui.OSUtil;
 import com.vaklinov.zcashui.SendCashPanel;
@@ -135,6 +136,8 @@ public class MessagingPanel
 	
 	// Storage of labels
 	private LabelStorage labelStorage;
+
+	private static LanguageUtil langUtil = LanguageUtil.instance();
 	
 	public MessagingPanel(ZcashJFrame parentFrame, SendCashPanel sendCashPanel, ZcashJTabbedPane parentTabs, 
 			              ZCashClientCaller clientCaller, StatusUpdateErrorReporter errorReporter,
@@ -175,8 +178,7 @@ public class MessagingPanel
 		this.conversationTextPane.setContentType("text/html");
 		this.conversationTextPane.addHyperlinkListener(new GroupLinkHandler());
 		ZcashJPanel upperPanel = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		upperPanel.add(this.conversationLabel = new ZcashJLabel(
-			"<html><span style=\"font-size:1.2em;font-style:italic;\">Conversation ...</span>"));
+		upperPanel.add(this.conversationLabel = new ZcashJLabel(langUtil.getString("messaging.panel.upper.panel")));
 		upperPanel.add(new ZcashJLabel(
     			"<html><span style=\"font-size:1.6em;font-style:italic;\">&nbsp;</span>"));
 		upperPanel.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
@@ -203,11 +205,11 @@ public class MessagingPanel
 					        ZcashJScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 					        ZcashJScrollPane.HORIZONTAL_SCROLLBAR_NEVER), 
 			BorderLayout.CENTER);
-		ZcashJLabel sendLabel = new ZcashJLabel("Message to send:");
+		ZcashJLabel sendLabel = new ZcashJLabel(langUtil.getString("messaging.panel.message.send"));
 		MessagingIdentity ownIdentity = this.messagingStorage.getOwnIdentity();
 		if (ownIdentity != null)
 		{
-			sendLabel.setText("Message to send as: " + ownIdentity.getDiplayString());
+			sendLabel.setText(langUtil.getString("messaging.panel.message.send.as", ownIdentity.getDiplayString()));
 		}
 		sendLabel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 		writePanel.add(sendLabel, BorderLayout.NORTH);
@@ -220,7 +222,7 @@ public class MessagingPanel
 		ZcashJLabel filler = new ZcashJLabel(" ");
 		filler.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 		sendButtonPanel.add(filler); // filler
-		sendButton = new ZcashJButton("Send message  \u27A4\u27A4\u27A4");
+		sendButton = new ZcashJButton(langUtil.getString("messaging.panel.send.message"));
 		ZcashJPanel tempPanel = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		tempPanel.add(sendButton);
 		sendButtonPanel.add(tempPanel);
@@ -232,15 +234,14 @@ public class MessagingPanel
 		tempPanel.add(sendMessageProgressBar);
 		sendButtonPanel.add(tempPanel);
 		sendResultLabel = new ZcashJLabel(
-				"<html><span style=\"font-size:0.8em;\">" +
-				"Send status: &nbsp;</span>");
+				langUtil.getString("messaging.panel.send.status"));
 		tempPanel = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		tempPanel.add(sendResultLabel);
 		sendButtonPanel.add(tempPanel);
 		
 		tempPanel = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		tempPanel.add(this.sendAnonymously = 
-			new ZcashJCheckBox("<html><span style=\"font-size:0.8em;\">Send anonymously</span>"));
+			new ZcashJCheckBox(langUtil.getString("messaging.panel.send.anonymously")));
 		sendButtonPanel.add(tempPanel);
 		
 		sendPanel.add(sendButtonPanel);
@@ -328,30 +329,22 @@ public class MessagingPanel
 				if (senders.containsKey(id))
 				{
 					MessagingIdentity sender = senders.get(id);
-			        messageStart = 
-			        	"This user has messaging identity: " + sender.getDiplayString() + "\n" +
-			        	"and uses sender identification address:\n" +
-			        	sender.getSenderidaddress() + "\n";
+			         messageStart = langUtil.getString("messaging.panel.message.start", sender.getDiplayString(),sender.getSenderidaddress());
 				} else
 				{
-			        messageStart = 
-			        	"This user is " + (anonymous ? "" : "not ") + "anonymous; " +
-			        	(anonymous ? "" : "However ") + "his messaging identity is not known. " +
-			        	"He is only identified \nby " + (anonymous ? "thread ID" : "a sender ID address:") + "\n" +
-			        	id + "\n";
+			        messageStart = anonymous? langUtil.getString("messaging.panel.message.start2", id) :
+						langUtil.getString("messaging.panel.message.start3", id);
 				}
 				
 		        int reply1 = JOptionPane.showOptionDialog(
 		        	MessagingPanel.this.parentFrame, 
 			        messageStart + "\n" + 
-			        "If you believe this user is spamming the group conversation, you have the option to\n" +
-			        "ignore all his messages. \n\n" + 
-			        "WARNING: If you choose to ignore this user's messages, you will not be able to see \n"+
-			        "any new messages he sends from this point forward!", 
-			        "Possibly ignore user messages?", 
+			        langUtil.getString("messaging.panel.message.spamming"), 
+					langUtil.getString("messaging.panel.message.spamming.ignore"), 
 			        JOptionPane.YES_NO_OPTION,
 			        JOptionPane.WARNING_MESSAGE, 
-			        null, new String[] { "Igone user's messages", "Cancel & Close" }, 
+			        null, new String[] { langUtil.getString("messaging.panel.message.spamming.ignore.yes"), 
+			        		langUtil.getString("messaging.panel.message.spamming.ignore.cancel")}, 
 			        JOptionPane.NO_OPTION);
 			        
 			    if (reply1 == JOptionPane.NO_OPTION) 
@@ -428,7 +421,7 @@ public class MessagingPanel
 					Util.parseJsonObject(msg.getMessage()).get("zcashmessagingidentity").asObject());
 				
 				preparedMessage = "<span style=\"color:green;\">" +
-					"Special identity carrying message; Contains details of contact: " +
+					langUtil.getString("messaging.panel.special.identity") +
 					msgID.getDiplayString() +
 					"</span>";
 			} else
@@ -457,13 +450,13 @@ public class MessagingPanel
 					(msg.getVerification() == VERIFICATION_TYPE.UNVERIFIED))
 				{
 					text.append("<span style=\"font-weight:bold;\">");
-					text.append("[WARNING: Message signature is unverified.] ");
+					text.append(langUtil.getString("messaging.panel.warning.unverified"));
 					text.append("</span>");	
 				} else if ((msg.getDirection() == DIRECTION_TYPE.RECEIVED) && 
 						   (msg.getVerification() == VERIFICATION_TYPE.VERIFICATION_FAILED))
 				{
 					text.append("<span style=\"font-weight:bold;font-size:1.25em;\">");
-					text.append("[ERROR: Message signature is invalid! Message may be forged!] ");
+					text.append(langUtil.getString("messaging.panel.error.invalid"));
 					text.append("</span>");
 				}
 			} else
@@ -471,7 +464,7 @@ public class MessagingPanel
 				text.append(contact.isGroup() && (msg.getDirection() == DIRECTION_TYPE.RECEIVED) ? 
 					"<a href=\"http://ANON_" + msg.getThreadID() + "\">" : "");
 				text.append("<span style=\"font-weight:bold;\">");
-				text.append("[Anonymous] ");
+				text.append(langUtil.getString("messaging.panel.anonymous"));
 				text.append(contact.isGroup() ? "[" + msg.getThreadID().substring(0, 15) + "...] " : "");
 				text.append("</span>");
 				text.append(contact.isGroup() && (msg.getDirection() == DIRECTION_TYPE.RECEIVED) ? "</a>" : "");
@@ -507,12 +500,12 @@ public class MessagingPanel
 		if (contact.isGroup())
 		{
 			this.conversationLabel.setText(
-				"<html><span style=\"font-size:1.25em;font-style:italic;\">Conversation in group: " + 
+				"<html><span style=\"font-size:1.25em;font-style:italic;\">" + langUtil.getString("messaging.panel.conversation.group") + 
 			    contact.getDiplayString() + "</span>");			
 		} else
 		{
 			this.conversationLabel.setText(
-				"<html><span style=\"font-size:1.25em;font-style:italic;\">Conversation with: " + 
+				"<html><span style=\"font-size:1.25em;font-style:italic;\">" + langUtil.getString("messaging.panel.conversation.with") + 
 		        contact.getDiplayString() + "</span>");
 		}
 	}
@@ -527,40 +520,43 @@ public class MessagingPanel
 		{
 			if (this.messagingStorage.getOwnIdentity() == null)
 			{
-		        JOptionPane.showMessageDialog(
+		        Object[] optionsSkip = 
+		        	{ 
+		        		langUtil.getString("button.option.ok"),
+		        		langUtil.getString("button.option.skip")
+		        	};
+					int reply = JOptionPane.showOptionDialog(
 	                this.parentFrame,
-	                "Welcome to Zcash messaging. As a start you will need to create a new messaging\n" + 
-	                "identity for yourself. As a part of this messaging identity a pair of T+Z addresses\n" +
-	                "will be created. The T address is to be used for identifying you to other users.\n" +
-	                "It must never be used for other financial transactions since this might reduce or\n" +
-	                "fully compromise your privacy. The Z address is to be used to send and receive\n" +
-	                "messages.\n\n" +
-	                "When creating a new messaging identity it is only mandatory to specify a nick-name\n" +
-	                "for yourself. All other items such as names/addresses etc. are optional. The \n" +
-	                "information in the messaging identity is meant to be shared with other users so \n" +
-	                "you need to be careful about the details you disclose.\n\n" +
-	                "Once your messaging identity has been created you can export it to a file using the\n" +
-	                "menu option Messaging >> Export own identity. This file may then be shared with\n" +
-	                "other users who wish to import it. To establish contact with other users you need to\n" +
-	                "import their messaging identity, using the menu option Messaging >> Import contact \n" +
-	                "identity.\n\n" +
-	                "Your messaging history will be saved and maintained in directory:\n" +
-	                OSUtil.getSettingsDirectory() + File.separator + "messaging" + "\n" +
-	                "You need to ensure that no unauthorized users have access to it on this computer.\n\n" +
-	                "(This message will be shown only once.)",
-	                "Welcome to messaging", JOptionPane.INFORMATION_MESSAGE);
+	                langUtil.getString("messaging.panel.welcome.message", OSUtil.getSettingsDirectory()+ File.separator +"messaging"),
+					langUtil.getString("messaging.panel.welcome"), 
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					optionsSkip,
+					JOptionPane.NO_OPTION);
+					if (reply == JOptionPane.NO_OPTION) 
+					{
+						return;
+					}
 		        	        
 		        // Show the GUI dialog to edit an initially empty messaging identity
 		        boolean identityCreated = this.openOwnIdentityDialog();
+				Object[] options = 
+		        	{ 
+		        		langUtil.getString("button.option.yes"),
+		        		langUtil.getString("button.option.no")
+		        	};
 		        
 		        // Offer the user to export his messaging identity
-		        int reply = JOptionPane.showConfirmDialog(
+		        reply = JOptionPane.showOptionDialog(
 		        	this.parentFrame, 
-		        	"Your messaging identity has been created successfully. Would you\n" +
-		        	"like to export it to a JSON file at this time? You need to export\n" +
-		        	"it and give this file to other users in order to establish contact.", 
-		        	"Export messaging identity?", 
-		        	JOptionPane.YES_NO_OPTION);
+		        	langUtil.getString("messaging.panel.export.message"),
+					langUtil.getString("messaging.panel.export"), 
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					options,
+					JOptionPane.NO_OPTION);
 		        
 		        if (reply == JOptionPane.YES_OPTION) 
 		        {
@@ -573,14 +569,8 @@ public class MessagingPanel
 					
 			        JOptionPane.showMessageDialog(
 				        this.parentFrame,
-				        "The Z address used to send/receive messages needs to be supplied with ZEC: \n" +
-				        ownIdentity.getSendreceiveaddress() + "\n" +
-				        "You will be redirected to the UI tab for sending ZEC to add some balance to it. You need only\n" +
-				        "a small amount e.g. typically 0.1 ZEC is sufficient to send 500 messages. After sending some\n" +
-				        "ZEC you need to wait for the transaction to be confirmed (typically takes 2.5 minutes). It is\n" +
-				        "recommended to send ZEC to this Z address in two or more separate transactions (though one \n" +
-				        "transaction is sufficient).", 
-					    "Z address to send/receive messages needs to be supplied with ZEC...", 
+				        langUtil.getString("messaging.panel.address.message", ownIdentity.getSendreceiveaddress() ),
+						langUtil.getString("messaging.panel.address"), 
 					    JOptionPane.INFORMATION_MESSAGE);
 					        
 						sendCashPanel.prepareForSending(ownIdentity.getSendreceiveaddress());
@@ -614,14 +604,8 @@ public class MessagingPanel
 		    	{
 			        JOptionPane.showMessageDialog(
 					    this.parentFrame,
-					    "The T address used to identify you in messaging must have NO ZEC balance: \n" +
-					    ownIdentity.getSenderidaddress() + "\n" +
-					    "However it currently has a non-zero balance! This might mean that you \n" +
-					    "accidentally used this T address in non-messaging transactions. It might\n" +
-					    "also mean that someone sent ZEC to it deliberately. To minimize the chance\n" +
-					    "of compromising your privacy you must transfer all ZEC from this T address\n" +
-					    "to some Z address ASAP!", 
-						"Messaging identification address has balance!", 
+					    langUtil.getString("messaging.panel.identification.message", ownIdentity.getSenderidaddress()), 
+						langUtil.getString("messaging.panel.identification"), 
 						JOptionPane.WARNING_MESSAGE);
 		    	}
 			}
@@ -688,8 +672,8 @@ public class MessagingPanel
 				     String ZAddress = this.clientCaller.createNewAddress(true, true);
 				     
 					// Update the labels for the two addresses
-				    this.labelStorage.setLabel(TAddress, "Own Messaging ID T address");
-				    this.labelStorage.setLabel(ZAddress, "Own Messaging ID Z address");
+				    this.labelStorage.setLabel(TAddress, langUtil.getString("messaging.panel.own.t"));
+				    this.labelStorage.setLabel(ZAddress, langUtil.getString("messaging.panel.own.z"));
 				     
 					ownIdentity.setSenderidaddress(TAddress);
 					ownIdentity.setSendreceiveaddress(ZAddress);
@@ -729,9 +713,8 @@ public class MessagingPanel
 			{
 		        JOptionPane.showMessageDialog(
 	        		this.parentFrame,
-	        		"Your messaging identity is missing! Maybe it has not been created yet.\n" +
-	        		"Use the menu option \"Messaging >> Own identity\" to crate it!", 
-	        		"Messaging identity is not available", JOptionPane.ERROR_MESSAGE);
+	        		langUtil.getString("messaging.identity.missing.message"), 
+					langUtil.getString("messaging.identity.missing"), JOptionPane.ERROR_MESSAGE);
 		        return;
 			}
 			
@@ -747,7 +730,7 @@ public class MessagingPanel
 			}
 			
 			ZcashJFileChooser fileChooser = new ZcashJFileChooser();
-			fileChooser.setDialogTitle("Export messaging identity to JSON file ...");
+			fileChooser.setDialogTitle(langUtil.getString("messaging.identity.filechooser.title"));
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fileChooser.setSelectedFile(
 				new File(OSUtil.getUserHomeDirectory(), filePrefix + "_messaging_identity.json"));
@@ -782,11 +765,8 @@ public class MessagingPanel
 			
 			JOptionPane.showMessageDialog(
 				this.parentFrame, 
-				"Your messaging identity has been successfully exported to file: \n" + 
-				f.getName() + "\n" +
-				"You may give this file to other users to establish contact with them.\n" +
-				"They may in turn import it into their wallet/messenger application.",
-				"Messaging identity is successfully exported...", JOptionPane.INFORMATION_MESSAGE);
+				langUtil.getString("messaging.identity.export", f.getName()),
+				langUtil.getString("messaging.identity.successfully.exported"), JOptionPane.INFORMATION_MESSAGE);
 		} catch (Exception ex)
 		{
 			Log.error("Unexpected error in exporting own messaging identity to file!", ex);
@@ -803,7 +783,7 @@ public class MessagingPanel
 		try
 		{
 			ZcashJFileChooser fileChooser = new ZcashJFileChooser();
-			fileChooser.setDialogTitle("Import contact's messaging identity from file...");
+			fileChooser.setDialogTitle(langUtil.getString("messaging.identity.import.title"));
 			fileChooser.setFileSelectionMode(ZcashJFileChooser.FILES_ONLY);
 			 
 			int result = fileChooser.showOpenDialog(this.parentFrame);
@@ -842,8 +822,8 @@ public class MessagingPanel
 			{
 				JOptionPane.showMessageDialog(
 					this.parentFrame, 
-					"The selected JSON file has a wrong format or is not a messaging identity file!", 
-					"Messaging identity has wrong format!", JOptionPane.ERROR_MESSAGE);
+					langUtil.getString("messaging.identity.import.wrong.format"), 
+					langUtil.getString("messaging.identity.import.format"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			
@@ -854,15 +834,19 @@ public class MessagingPanel
 			{
 				if (mi.isIdenticalTo(contactIdentity))
 				{  
-			        int choice = JOptionPane.showConfirmDialog(
+			        Object[] options = 
+			        	{ 
+			        		langUtil.getString("button.option.yes"),
+			        		langUtil.getString("button.option.no")
+			        	};
+			        int choice = JOptionPane.showOptionDialog(
 		        		this.parentFrame,
-		        		"There is already a contact in your contact list with the same identity. \n\n" +
-		        		"Existing contact identity: " + mi.getDiplayString() + "\n" +
-		        		"Contact identity being imported: " + contactIdentity.getDiplayString() + "\n\n" +
-		        		"Two identities are considered the same if their T/Z addresses are the same. \n" +
-		        		"Do you want to replace the details of the existing messaging identity, with\n" +
-		        		"the one being imported?", 
-		        		"The same contact identity is already available", JOptionPane.YES_NO_OPTION);
+		        		langUtil.getString("messaging.identity.import.duplicate.user", mi.getDiplayString(), contactIdentity.getDiplayString()),
+						langUtil.getString("messaging.identity.import.same.user"), JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						JOptionPane.NO_OPTION);
 			        
 			        if (choice == JOptionPane.YES_OPTION) 
 			        {
@@ -870,8 +854,8 @@ public class MessagingPanel
 			        		contactIdentity.getSenderidaddress(), contactIdentity);
 						JOptionPane.showMessageDialog(
 							this.parentFrame, 
-							"Your contact's messaging identity has been successfully updated.\n", 
-							"Messaging identity is successfully updated", JOptionPane.INFORMATION_MESSAGE);
+							langUtil.getString("messaging.identity.import.same.user.update"), 
+							langUtil.getString("messaging.identity.import.update"), JOptionPane.INFORMATION_MESSAGE);
 						this.contactList.reloadMessagingIdentities();
 			        }
 			        
@@ -888,13 +872,10 @@ public class MessagingPanel
 			{
 		        int choice = JOptionPane.showConfirmDialog(
 		        	this.parentFrame,
-		        	"There is a contact in your contact list with the same sender identification address \n" +
-		        	"but with yet unknown/not yet imported full identity:\n\n" +
-		        	"Existing contact identity: " + existingUnknownID.getDiplayString() + "\n" +
-		        	"Contact identity being imported: " + contactIdentity.getDiplayString() + "\n\n" +
-		        	"Please confirm that you want to update the details of the existing contact identity\n" +
-		        	"with the one being imported?", 
-		        	"Contact with the same sender identification address is already available.", 
+		        	langUtil.getString("messaging.identity.import.same.sender",
+					existingUnknownID.getDiplayString(),
+					contactIdentity.getDiplayString()),
+					langUtil.getString("messaging.identity.import.sender"), 
 		        	JOptionPane.YES_NO_OPTION);
 			        
 			    if (choice == JOptionPane.YES_OPTION) 
@@ -903,8 +884,8 @@ public class MessagingPanel
 			       		contactIdentity.getSenderidaddress(), contactIdentity);
 					JOptionPane.showMessageDialog(
 						this.parentFrame, 
-						"Your contact's messaging identity has been successfully updated.\n", 
-						"Messaging identity is successfully updated", JOptionPane.INFORMATION_MESSAGE);
+						langUtil.getString("messaging.identity.import.sender.update.message"), 
+						langUtil.getString("messaging.identity.import.sender.update"), JOptionPane.INFORMATION_MESSAGE);
 					this.contactList.reloadMessagingIdentities();
 			    }
 				
@@ -914,16 +895,20 @@ public class MessagingPanel
 			// Add the new identity normally!
 			this.messagingStorage.addContactIdentity(contactIdentity);
 			
-			int sendIDChoice = JOptionPane.showConfirmDialog(
+			Object[] options = 
+			{ 
+	        		langUtil.getString("button.option.yes"),
+	        		langUtil.getString("button.option.no")
+	        	};
+			int sendIDChoice = JOptionPane.showOptionDialog(
 				this.parentFrame, 
-				"Your contact's messaging identity has been successfully imported: \n" + 
-				contactIdentity.getDiplayString() + "\n" +
-				"You can now send and receive messages from this contact. Do you wish\n" +
-				"to send a limited sub-set of your contact details to this new contact\n" +
-				"as a special message?\n\n" +
-				"This will allow him/her to establish contact with you without manually\n" +
-				"importing your messaging identity (the way you imported his identity).",
-				"Successfully imported. Send your identity over?", JOptionPane.YES_NO_OPTION);
+				langUtil.getString("messaging.identity.import.successfully", 
+				contactIdentity.getDiplayString()),
+				langUtil.getString("messaging.identity.import.send.identity"), JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				JOptionPane.NO_OPTION);
 			
 			this.contactList.reloadMessagingIdentities();
 			
@@ -952,11 +937,8 @@ public class MessagingPanel
 			{
 		        JOptionPane.showMessageDialog(
 	        		this.parentFrame,
-	        		"You have no messaging contacts in your contact list. To use messaging\n" +
-	        		"you need to add at least one contact. You can add a contact by importing\n" +
-	        		"their messaging identity using the menu item Messaging >> Import contact \n" +
-	                "identity.",
-		        	"No messaging contacts available...", JOptionPane.ERROR_MESSAGE);					
+	        		langUtil.getString("messaging.identity.remove.selected.contact"),
+					langUtil.getString("messaging.identity.remove.no.contacts"), JOptionPane.ERROR_MESSAGE);				
 				return;			
 			}
 			
@@ -966,9 +948,8 @@ public class MessagingPanel
 			{
 		        JOptionPane.showMessageDialog(
 		        	this.parentFrame,
-		        	"No messaging contact is selected in the contact list (on the right side of the UI).\n" +
-		        	"In order to remove a contact you need to select a contact first!",
-			        "No messaging contact is selected...", JOptionPane.ERROR_MESSAGE);					
+		        	langUtil.getString("messaging.identity.remove.none.selected"),
+					langUtil.getString("messaging.identity.remove.not.selected"), JOptionPane.ERROR_MESSAGE);				
 				return;
 			}
 			
@@ -977,18 +958,26 @@ public class MessagingPanel
 					                 "<NONE>" : id.getSenderidaddress();
 			String contactZAddress = Util.stringIsEmpty(id.getSendreceiveaddress()) ? 
 	                                 "<NONE>" : id.getSendreceiveaddress();			
-	        int reply = JOptionPane.showConfirmDialog(
-	        	this.parentFrame, 
-	        	"The " + (id.isGroup() ? "messaging group " : "contact ")  + id.getDiplayString() + "\n" +
-	        	"with messaging identification T address:\n" +
-	        	contactTAddress + "\n" +
-	        	"and send/receive Z address:\n" +
-	        	contactZAddress + "\n" +
-	        	"will be permanently deleted from your contact list! All incoming messages from\n" +
-	        	"this contact will subsequently be ignored. Are you sure you want to remove the\n" +
-	        	"selected contact?", 
-	        	"Are you sure you wish to remove the contact?", 
-	        	JOptionPane.YES_NO_OPTION);
+	        Object[] options = 
+				{
+					langUtil.getString("button.option.yes"),
+					langUtil.getString("button.option.no")
+				};
+	        	int reply = JOptionPane.showOptionDialog(
+					this.parentFrame,
+					id.isGroup() ? langUtil.getString("messaging.identity.remove.group.warning", 
+					id.getDiplayString(),
+					contactTAddress,
+					contactZAddress) : langUtil.getString("messaging.identity.remove.contact.warning", 
+	    	        			id.getDiplayString(),
+	    	        			contactTAddress,
+	    	        			contactZAddress),
+	        	langUtil.getString("messaging.identity.remove.warning"), 
+	        	JOptionPane.YES_NO_OPTION,
+		        JOptionPane.QUESTION_MESSAGE,
+		        null,
+		        options,
+		        JOptionPane.NO_OPTION);
 	        
 	        if (reply == JOptionPane.NO_OPTION) 
 	        {
@@ -1052,11 +1041,8 @@ public class MessagingPanel
 		{
 	        JOptionPane.showMessageDialog(
         		this.parentFrame,
-        		"You have no messaging contacts in your contact list. To use messaging\n" +
-        		"you need to add at least one contact. You can add a contact by importing\n" +
-        		"their messaging identity using the menu item Messaging >> Import contact \n" +
-                "identity.",
-	        	"No messaging contacts available...", JOptionPane.ERROR_MESSAGE);					
+        		langUtil.getString("messaging.identity.remove.selected.contact"),
+				langUtil.getString("messaging.identity.remove.no.contacts"), JOptionPane.ERROR_MESSAGE);				
 			return;			
 		}
 
@@ -1064,9 +1050,8 @@ public class MessagingPanel
 		{
 	        JOptionPane.showMessageDialog(
 	        	this.parentFrame,
-	        	"No messaging contact is selected in the contact list (on the right side of the UI).\n" +
-	        	"In order to send an outgoing message you need to select a contact to send it to!",
-		        "No messaging contact is selected...", JOptionPane.ERROR_MESSAGE);					
+	        	langUtil.getString("messaging.send.none.selected"),
+				langUtil.getString("messaging.identity.remove.not.selected"), JOptionPane.ERROR_MESSAGE);				
 			return;		
 		}
 		
@@ -1080,18 +1065,15 @@ public class MessagingPanel
 		if (Util.stringIsEmpty(contactIdentity.getSendreceiveaddress()))
 		{
 			String errroMessage = 
-				"The messaging contact selected: " + contactIdentity.getDiplayString() + "\n" +
-				"seems to have no valid Z address for sending and receiving messages. \n";			
+				langUtil.getString("messaging.send.error.not.valid", contactIdentity.getDiplayString());		
 			errroMessage += contactIdentity.isAnonymous() ?
-				("Since the contact is anonymous this means that the contact intentionally did\n" +
-				"not send his Z address (for replies to be possible). Message cannot be sent!")
+				(langUtil.getString("messaging.send.error.anonymous"))
 				:
-				("Most likely the reason is that this contact's messaging identity is not \n" +
-				"imported yet. Message cannot be sent!");
+				(langUtil.getString("messaging.send.error.not.anonymous"));
 	        JOptionPane.showMessageDialog(
         		this.parentFrame,
         		errroMessage,
-	        	"Selected contact has to Z address to send message to!", JOptionPane.ERROR_MESSAGE);					
+	        	langUtil.getString("messaging.send.error.need.z"), JOptionPane.ERROR_MESSAGE);						
 			return;
 		}
 		
@@ -1104,15 +1086,21 @@ public class MessagingPanel
 			{
 				if (!contactIdentity.isGroup())
 				{
+					Object[] options = 
+			        	{ 
+			        		langUtil.getString("button.option.yes"),
+			        		langUtil.getString("button.option.no")
+			        	};
 			        // Offer the user to send a return address
-			        int reply = JOptionPane.showConfirmDialog(
+			        int reply = JOptionPane.showOptionDialog(
 			        	this.parentFrame, 
-			        	"This is the first anonymous message you are sending to contact: \n" +
-			        	contactIdentity.getDiplayString() + "\n" +
-			        	"Do you wish to send him your send/receive messaging Z address so\n" +
-			        	"that the contact may be able to answer your anonymous messages?", 
-			        	"Send return address?", 
-			        	JOptionPane.YES_NO_OPTION);
+			        	langUtil.getString("messaging.send.first.message", contactIdentity.getDiplayString()),
+						langUtil.getString("messaging.send.return.address"), 
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						JOptionPane.NO_OPTION);
 			        
 			        if (reply == JOptionPane.YES_OPTION) 
 			        {
@@ -1131,10 +1119,8 @@ public class MessagingPanel
 		        {
 			        JOptionPane.showMessageDialog(
 		        		this.parentFrame,
-		        		"The contact: " + contactIdentity.getDiplayString() + "\n" +
-		        		"has no message identification T address. It is not possible to \n" +
-		        		"send a message!", 
-			        	"Contact has no message identification T address", JOptionPane.ERROR_MESSAGE);					
+		        		langUtil.getString("messaging.send.error.need.t", contactIdentity.getDiplayString()),
+						langUtil.getString("messaging.send.error.t"), JOptionPane.ERROR_MESSAGE);				
 					return;
 		        }
 			}
@@ -1143,14 +1129,20 @@ public class MessagingPanel
 			// Check to make sure a normal message is not being sent to an anonymous identity
 			if (contactIdentity.isAnonymous())
 			{
-		        int reply = JOptionPane.showConfirmDialog(
+		        Object[] options = 
+		        	{ 
+		        		langUtil.getString("button.option.yes"),
+		        		langUtil.getString("button.option.no")
+		        	};
+				int reply = JOptionPane.showOptionDialog(
 			      	this.parentFrame, 
-			       	"The contact: " + contactIdentity.getDiplayString() + "\n" +
-			       	"is anonymous. However you are about to send a message to him\n" +
-			       	"that includes your sender identification T address. Are you sure\n" +
-			       	"you wish to send him the message?", 
-			       	"Send message releavling your sender identification T address?", 
-			       	JOptionPane.YES_NO_OPTION);
+			       	langUtil.getString("messaging.send.reveal.t.message", contactIdentity.getDiplayString()),
+					langUtil.getString("messaging.send.reveal.t"), 
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					options,
+					JOptionPane.NO_OPTION);
 			        
 			    if (reply == JOptionPane.NO_OPTION) 
 			    {
@@ -1169,9 +1161,8 @@ public class MessagingPanel
 		{
 	        JOptionPane.showMessageDialog(
         		this.parentFrame,
-        		"You have not written any text for a message to be sent. Please write some text\n" +
-        		"in the message text field...", 
-	        	"Message text is empty", JOptionPane.ERROR_MESSAGE);					
+        		langUtil.getString("messaging.send.no.text.message"), 
+				langUtil.getString("messaging.send.no.text"), JOptionPane.ERROR_MESSAGE);				
 			return;
 		}
 		
@@ -1180,9 +1171,8 @@ public class MessagingPanel
 		{
 	        JOptionPane.showMessageDialog(
 	        	this.parentFrame,
-	        	"There is currently another message sending operation under way.\n" +
-	        	"Please wait until the operation is completed...", 
-		        "Another message sending operation is under way!", JOptionPane.ERROR_MESSAGE);					
+	        	langUtil.getString("messaging.send.another.message"), 
+				 langUtil.getString("messaging.send.another"), JOptionPane.ERROR_MESSAGE);			
 			return;
 		}
 		
@@ -1219,14 +1209,8 @@ public class MessagingPanel
 					    balance, unconfirmedBalance);
 	        JOptionPane.showMessageDialog(
 	        	this.parentFrame,
-	        	"The Z address used to send/receive messages has insufficient balance: \n" +
-	        	ownIdentity.getSendreceiveaddress() + "\n" +
-	        	"You will be redirected to the UI tab for sending C to add some balance to it. You need only\n" +
-	        	"a small amount e.g. typically 0.1 ZEC is sufficient to send 500 messages. After sending some\n" +
-	        	"ZEC you need to wait for the transaction to be confirmed (typically takes 2.5 minutes). It is\n" +
-	        	"recommended to send ZEC to this Z address in two or more separate transactions (though one \n" +
-	        	"transaction is sufficient).", 
-		        "Z address to send/receive messages has insufficient balance...", JOptionPane.ERROR_MESSAGE);
+	        	langUtil.getString("messaging.send.no.funds.message", ownIdentity.getSendreceiveaddress()),
+				langUtil.getString("messaging.send.no.funds"), JOptionPane.ERROR_MESSAGE);
 		        
 	            // Restore controls and move to the send cash tab etc.
 		        this.sendButton.setEnabled(true);
@@ -1243,13 +1227,8 @@ public class MessagingPanel
 				        balance, unconfirmedBalance);
 	        JOptionPane.showMessageDialog(
 	        	this.parentFrame,
-	        	"The Z address used to send/receive messages has insufficient confirmed balance: \n" +
-	        	ownIdentity.getSendreceiveaddress() + "\n" +
-	        	"This usually means that the previous messaging transaction is not yet confirmed. You\n" +
-	        	"need to wait for the transaction to be confirmed (typically takes 2.5 minutes). This\n" +
-	        	"problem may be avoided if you send ZEC to this Z address in two or more separate \n" +
-	        	"transactions (when you supply the ZEC balance to be used for messaging).", 
-		        "Z address to send/receive messages has insufficient confirmed balance...", JOptionPane.ERROR_MESSAGE);
+	        	langUtil.getString("messaging.send.no.funds.confirmed.message", ownIdentity.getSendreceiveaddress()),
+				langUtil.getString("messaging.send.no.funds.confirmed"), JOptionPane.ERROR_MESSAGE);
 		        
 	            // Restore controls and move to the send cash tab etc.
 		        this.sendButton.setEnabled(true);
@@ -1305,14 +1284,11 @@ public class MessagingPanel
 			// We give exact size and advice on reduction...
 	        JOptionPane.showMessageDialog(
         		this.parentFrame,
-        		"The text of the message you have written is too long to be sent. When\n" +
-        		"packaged as a memo it comes up to " + overallSendingLength + 
-        		" bytes (maximum is " + maxSendingLength + " bytes)\n\n" + 
-        		"Advice: try to reduce the message length by " + difference + " characters. The current\n" +
-        		"version of the ZEC messaging protocol supports approximately 330\n" +
-        		"characters per message (number is not exact - depends on character\n" + 
-        		"encoding specifics).", 
-	        	"Message size exceeds currently supported limits...", JOptionPane.ERROR_MESSAGE);
+        		langUtil.getString("messaging.send.text.exceeding.message", 
+				overallSendingLength,
+				maxSendingLength,
+				difference),
+				langUtil.getString("messaging.send.text.exceeding"), JOptionPane.ERROR_MESSAGE);
 	        // Restore controls and exit
 	        this.sendButton.setEnabled(true);
 			this.writeMessageTextArea.setEnabled(true);
@@ -1343,15 +1319,12 @@ public class MessagingPanel
 		{
 			Log.error("Wallet call error in sending message: ", wce);
 			
-			sendResultLabel.setText(
-				"<html><span style=\"font-size:0.8em;\">Send status: &nbsp;" +
-				"<span style=\"color:red;font-weight:bold\">ERROR! </span></span></html>");
+			sendResultLabel.setText(langUtil.getString("messaging.send.status.error"));
 			JOptionPane.showMessageDialog(
 				MessagingPanel.this.getRootPane().getParent(), 
-				"An error occurred upon sending message to contact: " + contactIdentity.getDiplayString() + ". \n" +
-				"Error message is: " +	wce.getMessage() + "\n" +
-				"If the problem persists, you may need technical support :( ...\n", 
-				"Error in sending message", JOptionPane.ERROR_MESSAGE);
+				langUtil.getString("messaging.send.error.wce.message", contactIdentity,
+				wce.getMessage()),
+				langUtil.getString("messaging.send.error.in.sending"), JOptionPane.ERROR_MESSAGE);
 			
 			sendMessageProgressBar.setValue(0);						 
 			sendButton.setEnabled(true);
@@ -1402,20 +1375,18 @@ public class MessagingPanel
 						if (sendWasSuccessful)
 						{
 							sendResultLabel.setText(
-								"<html><span style=\"font-size:0.8em;\">Send status: &nbsp;" +
-								"<span style=\"color:green;font-weight:bold\">SUCCESSFUL</span></span></html>");
+								langUtil.getString("messaging.send.status.success"));
 						} else
 						{
 							String errorMessage = clientCaller.getOperationFinalErrorMessage(operationStatusID); 
 							sendResultLabel.setText(
-								"<html><span style=\"font-size:0.8em;\">Send status: &nbsp;" +
-								"<span style=\"color:red;font-weight:bold\">ERROR! </span></span></html>");
+								langUtil.getString("messaging.send.status.error"));
 							JOptionPane.showMessageDialog(
 								MessagingPanel.this.getRootPane().getParent(), 
-								"An error occurred when sending message to contact: " + contactIdentity.getDiplayString() + ". \n" +
-								"Error message is: " +	errorMessage + "\n\n" +
-								"If the problem persists, you may need technical support :( ...\n", 
-								"Error in sending message", JOptionPane.ERROR_MESSAGE);
+								langUtil.getString("messaging.send.error.wce.message",
+								contactIdentity.getDiplayString(),
+								errorMessage),
+								langUtil.getString("messaging.send.error.in.sending"), JOptionPane.ERROR_MESSAGE);
 						}
 								
 								
@@ -1445,8 +1416,7 @@ public class MessagingPanel
 					{
 						// Update the progress
 						sendResultLabel.setText(
-							"<html><span style=\"font-size:0.8em;\">Send status: &nbsp;" +
-							"<span style=\"color:orange;font-weight:bold\">IN PROGRESS</span></span></html>");
+							langUtil.getString("messaging.send.status.inprogress"));
 						operationStatusCounter += 2;
 						int progress = 0;
 						if (operationStatusCounter <= 100)
@@ -1544,16 +1514,9 @@ public class MessagingPanel
 			{
 				JOptionPane.showMessageDialog(
 					MessagingPanel.this.getRootPane().getParent(), 
-					"The messaging identity send/receive address: \n" +
-					ownZAddress + "\n" +
-					"is not found in the wallet.dat. The reason may be that after a messaging identity\n" +
-					"was created the wallet.dat was changed or the ZEC node configuration was changed\n" +
-					"(e.g. mainnet -> testnet). If such a change was made, the messaging identity can no\n" +
-					"longer be used. To avoid this error message, you may rename the directory:\n" +
-					OSUtil.getSettingsDirectory() + File.separator + "messaging" + "\n" +
-					"until the configuration or wallet.dat is restored! Directory may only be renamed when\n" +
-					"the wallet is stopped!", 
-					"Messaging identity address is not found in wallet!", JOptionPane.ERROR_MESSAGE);
+					langUtil.getString("messaging.collect.identity.not.found.message", ownZAddress,
+					OSUtil.getSettingsDirectory() + File.separator + "messaging"),
+					langUtil.getString("messaging.collect.identity.not.found"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			
@@ -1921,12 +1884,19 @@ public class MessagingPanel
 			// So a group is created - we need to ask the user if he wishes to send an identity message 
 			MessagingIdentity createdGroup = cgd.getCreatedGroup();
 			
-			int sendIDChoice = JOptionPane.showConfirmDialog(
+			Object[] options =
+				{ 
+	        		langUtil.getString("button.option.yes"),
+	        		langUtil.getString("button.option.no")
+	        	};
+			int sendIDChoice = JOptionPane.showOptionDialog(
 				this.parentFrame, 
-				"Do you wish to send a limited sub-set of your contact details to group\n" + 
-				createdGroup.getDiplayString() + "\n" +
-				"This will allow other group members to know your messaging identity.",
-				"Send contact details?", JOptionPane.YES_NO_OPTION);
+				langUtil.getString("messaging.add.group.message", createdGroup.getDiplayString()),
+				langUtil.getString("messaging.add.group.send.contact"), JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				JOptionPane.NO_OPTION);
 				
 			// TODO: code duplication with import
 			if (sendIDChoice == JOptionPane.YES_OPTION)
@@ -1952,9 +1922,8 @@ public class MessagingPanel
 				{
 					JOptionPane.showMessageDialog(
 						this.parentFrame, 
-						"The size of your messaging identity is unfortunately too large to be sent\n" +
-						"as a message.", 
-						"Messaging identity size is too large!", JOptionPane.ERROR_MESSAGE);
+						langUtil.getString("messaging.add.identity.large.message"),
+						langUtil.getString("messaging.add.identity.large"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 			}
@@ -2019,10 +1988,8 @@ public class MessagingPanel
 		{
 			JOptionPane.showMessageDialog(
 				this.parentFrame, 
-				"The size of your messaging identity is unfortunately too large to be sent\n" +
-				"as a message. Your contact will have to import your messaging identity\n" +
-				"manually from a json file...", 
-				"Messaging identity size is too large!", JOptionPane.ERROR_MESSAGE);
+				langUtil.getString("messaging.send.identity.large.message"), 
+				langUtil.getString("messaging.send.identity.large"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 	}

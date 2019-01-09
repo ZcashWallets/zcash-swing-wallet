@@ -133,20 +133,20 @@ public class MessagingIdentity
 		{
 			if (Util.stringIsEmpty(this.nickname) || Util.stringIsEmpty(this.sendreceiveaddress))
 			{
-				throw new IOException("Mandatory field is missing in creating group messaging identity!");
+				throw new IOException(langUtil.getString("messaging.identity.exception.1"));
 			}
 		} else if (this.isAnonymous())
 		{
 			if (Util.stringIsEmpty(this.nickname) || Util.stringIsEmpty(this.threadID))
 			{
-				throw new IOException("Mandatory field is missing in creating anonymous messaging identity!");
+				throw new IOException(langUtil.getString("messaging.identity.exception.2"));
 			}			
 		} else
 		{
 			// Make sure the mandatory fields are there
 			if (Util.stringIsEmpty(this.nickname) || Util.stringIsEmpty(this.senderidaddress))
 			{
-				throw new IOException("Mandatory field is missing in creating messaging identity!");
+				throw new IOException(langUtil.getString("messaging.identity.exception.3"));
 			}
 		}
 	}

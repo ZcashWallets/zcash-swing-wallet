@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
+import com.vaklinov.zcashui.LanguageUtil;
 import com.vaklinov.zcashui.Log;
 import com.vaklinov.zcashui.OSUtil;
 
@@ -54,10 +55,15 @@ public class ZcashXUI {
 	public static final String TEXTPANE_PROPERTY_COLOR = "textpane.background.color";
 	public static final String TOOLTIP_PROPERTY_COLOR = "tooltip.background.color";
 	public static final String VIEWPORT_PROPERTY_COLOR = "viewport.background.color";
+	public static final String MESSAGE_SENT_PROPERTY_COLOR = "message.sent.color";
+	public static final String MESSAGE_RECEIVED_PROPERTY_COLOR = "message.received.color";
+
 	public static final String CURRENCY = "currency";
 
 	public static final String DEFAULT_COLOR = "#ffffff";
 	public static final String DEFAULT_COLOR_BLACK = "#000000";
+	public static final String DEFAULT_COLOR_RED = "#ff0000";
+	public static final String DEFAULT_COLOR_BLUE = "#0000ff";
 	public static final String DEFAULT_CURRENCY = "USD";
 	
 	public static Color button;
@@ -100,9 +106,11 @@ public class ZcashXUI {
 	public static Color textpane;
 	public static Color tooltip;
 	public static Color viewport;
+	public static Color messageSent;
+	public static Color messageReceived;
 	public static String currency;
 
-	
+	private static LanguageUtil langUtil = LanguageUtil.instance();
 	
 	public ZcashXUI() {
 		Log.info("Loading ZECmate");
@@ -135,6 +143,7 @@ public class ZcashXUI {
 		javax.swing.UIManager.put("Button.foreground",ZcashXUI.text);
 		javax.swing.UIManager.put("Panel.background",ZcashXUI.panel);
 		javax.swing.UIManager.put("Panel.foreground",ZcashXUI.text);
+		javax.swing.UIManager.put("OptionPane.okButtonText", langUtil.getString("button.option.ok"));
 			
 		
 		Log.info("Finished loading ZECmate");
@@ -202,6 +211,8 @@ public class ZcashXUI {
 				tooltip = Color.decode(confProps.getProperty(TOOLTIP_PROPERTY_COLOR)!= null? confProps.getProperty(TOOLTIP_PROPERTY_COLOR).trim():DEFAULT_COLOR); 
 				viewport = Color.decode(confProps.getProperty(VIEWPORT_PROPERTY_COLOR)!= null? confProps.getProperty(VIEWPORT_PROPERTY_COLOR).trim():DEFAULT_COLOR); 
 				currency = confProps.getProperty(CURRENCY)!= null? confProps.getProperty(CURRENCY).toUpperCase().trim():DEFAULT_CURRENCY; 
+				messageSent = Color.decode(confProps.getProperty(MESSAGE_SENT_PROPERTY_COLOR)!= null? confProps.getProperty(MESSAGE_SENT_PROPERTY_COLOR).trim():DEFAULT_COLOR_BLUE); 
+				messageReceived = Color.decode(confProps.getProperty(MESSAGE_RECEIVED_PROPERTY_COLOR)!= null? confProps.getProperty(MESSAGE_RECEIVED_PROPERTY_COLOR).trim():DEFAULT_COLOR_RED); 
 				
 			} finally
 			{
