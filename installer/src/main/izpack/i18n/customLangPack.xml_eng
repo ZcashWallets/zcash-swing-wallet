@@ -1,4 +1,4 @@
 <langpack>
     <str id="installer.reversetitle" txt="$APP_NAME $APP_VER"/>
-    <str id="installation.panel.header" txt="Zcash Desktop GUI Wallet binary release 1.0.1 for Windows"/>
+    <str id="installation.panel.header" txt="Zcash Desktop GUI Wallet binary release 1.1.0 for Windows"/>
 </langpack>
