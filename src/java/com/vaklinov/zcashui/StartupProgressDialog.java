@@ -41,7 +41,7 @@ public class StartupProgressDialog extends ZcashJFrame {
     private BorderLayout southPanelLayout = new BorderLayout();
     private ZcashJProgressBar progressBar = new ZcashJProgressBar();
     private ImageIcon imageIcon;
-    private static Color backGroundColor = ZcashXUI.progressbar;
+    private Color backGroundColor = ZcashXUI.progressbar;
     
     private final ZCashClientCaller clientCaller;
     

@@ -52,7 +52,7 @@ import com.cabecinha84.zcashui.ZcashJFrame;
 import com.cabecinha84.zcashui.ZcashJLabel;
 import com.cabecinha84.zcashui.ZcashJPanel;
 import com.cabecinha84.zcashui.ZcashJTextField;
-
+import com.vaklinov.zcashui.LanguageUtil;
 import com.vaklinov.zcashui.Log;
 import com.vaklinov.zcashui.StatusUpdateErrorReporter;
 import com.vaklinov.zcashui.Util;
@@ -74,7 +74,8 @@ public class MessagingOptionsEditDialog
 	protected ZcashJTextField amountTextField;
 	protected ZcashJTextField transactionFeeTextField;
 	protected ZcashJCheckBox  automaticallyAddUsers;
-	
+	private static LanguageUtil langUtil = LanguageUtil.instance();
+
 	public MessagingOptionsEditDialog(ZcashJFrame parentFrame, MessagingStorage storage, StatusUpdateErrorReporter errorReporter)
 		throws IOException
 	{
@@ -82,7 +83,7 @@ public class MessagingOptionsEditDialog
 		this.storage       = storage;
 		this.errorReporter = errorReporter;
 		
-		this.setTitle("Messaging options");
+		this.setTitle(langUtil.getString("messaging.options.title"));
 		this.setModal(true);
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
@@ -93,21 +94,18 @@ public class MessagingOptionsEditDialog
 		ZcashJPanel tempPanel = new ZcashJPanel(new BorderLayout(0, 0));
 		tempPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 		infoLabel = new ZcashJLabel(
-				"<html><span style=\"font-size:0.93em;\">" +
-				"The options below pertain to messaging. It is possible to set the amount of ZEC<br/>" +
-				"to be sent with every messaging transaction and also the transaction fee. It is<br/>" + 
-			    "also possible to decide if users are to be automatically added to the contact list.<br/><br/>" +
-			    "</span>");
+				langUtil.getString("messaging.options.info"));
 	    tempPanel.add(infoLabel, BorderLayout.CENTER);
 		this.getContentPane().add(tempPanel, BorderLayout.NORTH);
 			
 		ZcashJPanel detailsPanel = new ZcashJPanel();
 		detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
 		
-		addFormField(detailsPanel, "Automatically add users to contact list:",   
+		addFormField(detailsPanel, langUtil.getString("messaging.options.auto.users"),   
 				     automaticallyAddUsers = new ZcashJCheckBox());
-		addFormField(detailsPanel, "ZEC amount to send with every message:",   amountTextField = new ZcashJTextField(12));
-		addFormField(detailsPanel, "Transaction fee:",  transactionFeeTextField = new ZcashJTextField(12));
+		addFormField(detailsPanel, langUtil.getString("messaging.options.auto.amount"),   amountTextField = new ZcashJTextField(12));
+		addFormField(detailsPanel, langUtil.getString("messaging.options.txn.fee"),  transactionFeeTextField = new ZcashJTextField(12));
+
 		
 		DecimalFormatSymbols decSymbols = new DecimalFormatSymbols(Locale.ROOT);
 		automaticallyAddUsers.setSelected(options.isAutomaticallyAddUsersIfNotExplicitlyImported());
@@ -134,7 +132,7 @@ public class MessagingOptionsEditDialog
 				}
 		});
 		
-		ZcashJButton saveButon = new ZcashJButton("Save & close");
+		ZcashJButton saveButon = new ZcashJButton(langUtil.getString("messaging.options.save"));
 		buttonPanel.add(saveButon);
 		saveButon.addActionListener(new ActionListener()
 		{
@@ -146,8 +144,8 @@ public class MessagingOptionsEditDialog
 					String amountToSend = MessagingOptionsEditDialog.this.amountTextField.getText();
 					String transactionFee = MessagingOptionsEditDialog.this.transactionFeeTextField.getText();
 					
-					if ((!MessagingOptionsEditDialog.this.verifyNumericField("amount to send", amountToSend)) ||
-						(!MessagingOptionsEditDialog.this.verifyNumericField("transaction fee", transactionFee)))
+					if ((!MessagingOptionsEditDialog.this.verifyNumericField(langUtil.getString("messaging.options.amount"), amountToSend)) ||
+					(!MessagingOptionsEditDialog.this.verifyNumericField(langUtil.getString("messaging.options.txn"), transactionFee)))
 					{
 						return;
 					}
@@ -183,9 +181,9 @@ public class MessagingOptionsEditDialog
 		{
 	        JOptionPane.showMessageDialog(
         		this.parentFrame,
-        		"Field \"" + name + "\" is empty. It is mandatory. Please fill it.",
-                "Mandatory data missing", JOptionPane.ERROR_MESSAGE);
-	        return false;
+        		langUtil.getString("messaging.options.error", name),
+                langUtil.getString("messaging.options.error.mandatory"), JOptionPane.ERROR_MESSAGE);
+			return false;
 		}
 		
 		try
@@ -196,16 +194,16 @@ public class MessagingOptionsEditDialog
 			{
 		        JOptionPane.showMessageDialog(
 		        	this.parentFrame,
-		        	"Field \"" + name + "\" has a value that is negative. Please enter a positive number!",
-		            "Field is negative", JOptionPane.ERROR_MESSAGE);
+		        	langUtil.getString("messaging.options.error.negative", name),
+		        	langUtil.getString("messaging.options.error.field.negative"), JOptionPane.ERROR_MESSAGE);
 		        return false;			
 			}
 		} catch (NumberFormatException nfe)
 		{
 	        JOptionPane.showMessageDialog(
 	        	this.parentFrame,
-	        	"Field \"" + name + "\" has a value that is not numeric. Please enter a number!",
-	            "Field is not numeric", JOptionPane.ERROR_MESSAGE);
+	        	langUtil.getString("messaging.options.error.numeric", name),
+	            langUtil.getString("messaging.options.error.not.numeric"), JOptionPane.ERROR_MESSAGE);
 		    return false;			
 		}
 		
@@ -218,7 +216,7 @@ public class MessagingOptionsEditDialog
 		ZcashJPanel tempPanel = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
 		ZcashJLabel tempLabel = new ZcashJLabel(name, JLabel.RIGHT);
 		// TODO: hard sizing of labels may not scale!
-		final int width = new ZcashJLabel("ZEC amount to send with every message:").getPreferredSize().width + 30;
+		final int width = new ZcashJLabel(langUtil.getString("messaging.options.auto.amount")).getPreferredSize().width + 30;
 		tempLabel.setPreferredSize(new Dimension(width, tempLabel.getPreferredSize().height));
 		tempPanel.add(tempLabel);
 		tempPanel.add(field);
