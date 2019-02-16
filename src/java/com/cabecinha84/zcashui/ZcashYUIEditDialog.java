@@ -81,12 +81,12 @@ public class ZcashYUIEditDialog
 	private static final String GREYMESSAGESENTDEFAULT = "#00ff33";
 	private static final String GREYMESSAGERECEIVEDDEFAULT = "#1a1aff";
 
-	private static final String ORANGETIER1DEFAULT = "#FDB813";
-	private static final String ORANGETIER2DEFAULT = "#ffff00";
-	private static final String ORANGETIER3DEFAULT = "#ff0000";
-	private static final String ORANGETEXTDEFAULT = "#ff0000";
-	private static final String ORANGEMESSAGESENTDEFAULT = "#00ff33";
-	private static final String ORANGEMESSAGERECEIVEDDEFAULT = "#1a1aff";
+	private static final String THUNDERTIER1DEFAULT = "#212121";
+	private static final String THUNDERTIER2DEFAULT = "#484848";
+	private static final String THUNDERTIER3DEFAULT = "#484848";
+	private static final String THUNDERTEXTDEFAULT = "#4dd0e1";
+	private static final String THUNDERMESSAGESENTDEFAULT = "#00e676";
+	private static final String THUNDERMESSAGERECEIVEDDEFAULT = "#40c4ff";
 	
 	protected ZcashJTextField tierOneColor;
 	protected ZcashJTextField tierTwoColor;
@@ -113,7 +113,7 @@ public class ZcashYUIEditDialog
 	
 	private ZcashJFrame parentFrame;
 	
-	private static ZcashJButton orangeThemeButton;
+	private static ZcashJButton thunderThemeButton;
 	private static ZcashJButton greyThemeButton;
 	private static ZcashJButton whiteThemeButton;
 	private static ZcashJButton blueThemeButton;
@@ -206,8 +206,8 @@ public class ZcashYUIEditDialog
 		themePanel2.add(redThemeButton);
 		greyThemeButton = new ZcashJButton(langUtil.getString("dialog.zcashuiedit.set.grey.theme"));
 		themePanel2.add(greyThemeButton);
-		orangeThemeButton = new ZcashJButton(langUtil.getString("dialog.zcashuiedit.set.orange.theme"));
-		themePanel2.add(orangeThemeButton);
+		thunderThemeButton = new ZcashJButton(langUtil.getString("dialog.zcashuiedit.set.thunder.theme"));
+		themePanel2.add(thunderThemeButton);
 
  		detailsPanel.add(themePanel2);
 
@@ -274,17 +274,17 @@ public class ZcashYUIEditDialog
 			}
 		});
 		
-		orangeThemeButton.addActionListener(new ActionListener()
+		thunderThemeButton.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				tier1Color = ORANGETIER1DEFAULT;
-				tier2Color = ORANGETIER2DEFAULT;
-				tier3Color = ORANGETIER3DEFAULT;
-				textColor = ORANGETEXTDEFAULT;
-				messageSentColor = ORANGEMESSAGESENTDEFAULT;
-				messageReceivedColor = ORANGEMESSAGERECEIVEDDEFAULT;
+				tier1Color = THUNDERTIER1DEFAULT;
+				tier2Color = THUNDERTIER2DEFAULT;
+				tier3Color = THUNDERTIER3DEFAULT;
+				textColor = THUNDERTEXTDEFAULT;
+				messageSentColor = THUNDERMESSAGESENTDEFAULT;
+				messageReceivedColor = THUNDERMESSAGERECEIVEDDEFAULT;
 				color1 = Color.decode(tier1Color);
 				color2 = Color.decode(tier2Color);
 				color3 = Color.decode(tier3Color);
@@ -298,8 +298,8 @@ public class ZcashYUIEditDialog
 				messageSentTextField.setForeground(colorMessageSent);
 				messageReceivedTextField.setForeground(colorMessageReceived);		
 				saveSettings();
-				orangeThemeButton.setSelected(false);
-				orangeThemeButton.setFocusable(false);
+				thunderThemeButton.setSelected(false);
+				thunderThemeButton.setFocusable(false);
 			}
 		});
 
