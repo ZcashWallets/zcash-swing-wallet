@@ -14,11 +14,13 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import com.vaklinov.zcashui.DataTable;
+import com.vaklinov.zcashui.Log;
 
 public class ZcashJTable extends JTable {
 	private Color backGroundColor = ZcashXUI.table;
 	private Color headerBackGroundColor = ZcashXUI.tableHeader;
 	private Color textColor = ZcashXUI.text;
+	private boolean keyEventExecuted = false;
 	public ZcashJTable() {
 		super();
 		this.setBackground(backGroundColor);
@@ -86,25 +88,41 @@ public class ZcashJTable extends JTable {
 	    this.addKeyListener(new KeyAdapter() {
 	        @Override
 	        public void keyReleased(KeyEvent e) {
-	            if (e.getKeyCode() == KeyEvent.VK_C) {
+	            if (e.getKeyCode() == KeyEvent.VK_C  && !keyEventExecuted) {
+	            	keyEventExecuted = true;
 	            	int lastRow = getSelectedRow();
 	            	int lastColumn = getSelectedColumn();
 	            	if ((lastRow >= 0) && (lastColumn >= 0))
 					{
 						String text = getValueAt(lastRow, lastColumn).toString();
-
- 						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+					
+						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 						clipboard.setContents(new StringSelection(text), null);
 					} else
 					{
 						// Log perhaps
 					}
+	            	
+                	Runnable r = new Runnable() {
+            		public void run() {
+           	        	try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							Log.error("Error sleeping thread for processkeyAction: "+e.getMessage());
+						}
+           	        	 processKeyAction();
+	           	         }
+	           	    };
+	
+	           	    new Thread(r).start();
 	            }
 	        }
 	    });
 	}
 
-
+	private void processKeyAction() {
+		keyEventExecuted = false;
+	}
 	
 }
 

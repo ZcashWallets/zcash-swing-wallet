@@ -20,6 +20,7 @@ public class ZcashJTextField extends JTextField {
 	private Color backGroundColor = ZcashXUI.textarea;
 	private Color textColor = ZcashXUI.text;
 	private static LanguageUtil langUtil = LanguageUtil.instance();
+	private boolean keyEventExecuted = false;
 	public ZcashJTextField() {
 		super();
 		this.setBackground(backGroundColor);
@@ -85,25 +86,66 @@ public class ZcashJTextField extends JTextField {
             	}
             }
         });
-		this.addKeyListener(new KeyAdapter() {
+ 		this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_C) {
+                if (e.getKeyCode() == KeyEvent.VK_C && !keyEventExecuted) {
+                	keyEventExecuted = true;
                 	ZcashJTextField textField = (ZcashJTextField) e.getSource();
                 	textField.copy();
+                	Runnable r = new Runnable() {
+            		public void run() {
+           	        	try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							Log.error("Error sleeping thread for processkeyAction: "+e.getMessage());
+						}
+           	        	 processKeyAction();
+	           	         }
+	           	    };
+	
+	           	    new Thread(r).start();
                 }
-				if (e.getKeyCode() == KeyEvent.VK_X) {
+				if (e.getKeyCode() == KeyEvent.VK_X && !keyEventExecuted) {
+					keyEventExecuted = true;
                 	ZcashJTextField textField = (ZcashJTextField) e.getSource();
-                	textField.cut();	
+                	textField.cut();
+                	Runnable r = new Runnable() {
+            		public void run() {
+           	        	try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							Log.error("Error sleeping thread for processkeyAction: "+e.getMessage());
+						}
+           	        	 processKeyAction();
+	           	         }
+	           	    };
+    	           	new Thread(r).start();
                 }
-                if (e.getKeyCode() == KeyEvent.VK_V) {
+                if (e.getKeyCode() == KeyEvent.VK_V && !keyEventExecuted) {
+                	keyEventExecuted = true;
                 	ZcashJTextField textField = (ZcashJTextField) e.getSource();
                 	textField.paste();
+                	Runnable r = new Runnable() {
+            		public void run() {
+           	        	try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							Log.error("Error sleeping thread for processkeyAction: "+e.getMessage());
+						}
+           	        	 processKeyAction();
+	           	         }
+	           	    };
+   	
+   	           	    new Thread(r).start();
                 }
             }
         });
 	}
 	
+	private void processKeyAction() {
+		keyEventExecuted = false;
+	}
 		
 }
 
