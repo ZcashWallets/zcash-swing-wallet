@@ -39,7 +39,6 @@ import com.vaklinov.zcashui.ZCashUI;
 public class ZcashYUIEditDialog
 	extends ZcashJDialog
 {
-	private static final String CURRENCYDEFAULT = "USD";
 	private static final String TIER1DEFAULT = "#ffffff";
 	private static final String TIER2DEFAULT = "#cceeff";
 	private static final String TIER3DEFAULT = "#0069cc";
@@ -120,7 +119,6 @@ public class ZcashYUIEditDialog
 	private static ZcashJButton blueThemeButton;
 	private static ZcashJButton greenThemeButton;
 	private static ZcashJButton redThemeButton;
-	private static ZcashJButton defaultsButton;
 	private static ZcashJButton saveButton;
 	private static ZcashJButton tier1Button;
 	private static ZcashJButton tier2Button;
@@ -156,7 +154,7 @@ public class ZcashYUIEditDialog
 		textButton = new ZcashJButton(langUtil.getString("dialog.zcashuiedit.selectColor"));
 		messageSentButton = new ZcashJButton(langUtil.getString("dialog.zcashuiedit.selectColor"));
 		messageReceivedButton = new ZcashJButton(langUtil.getString("dialog.zcashuiedit.selectColor"));
-		currencyOptions = new ZcashJComboBox<>(getAvailableCurrencys());
+		currencyOptions = new ZcashJComboBox<>(ZcashXUI.currencys);
 		currencyOptions.setSelectedItem(currency);
 		
 		ZcashJPanel detailsPanel = new ZcashJPanel();
@@ -220,8 +218,6 @@ public class ZcashYUIEditDialog
 		closePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 3, 3));
 		ZcashJButton closeButon = new ZcashJButton(langUtil.getString("dialog.about.button.close.text"));
 		closePanel.add(closeButon);
-		defaultsButton = new ZcashJButton(langUtil.getString("dialog.zcashuiedit.setDefaults"));
-		closePanel.add(defaultsButton);
 		saveButton = new ZcashJButton(langUtil.getString("dialog.zcashuiedit.save"));
 		closePanel.add(saveButton);
 
@@ -249,38 +245,6 @@ public class ZcashYUIEditDialog
 			}
 		});
 		
-		
-		defaultsButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				currency = CURRENCYDEFAULT;
-				currencyOptions.setSelectedItem(currency);
-				tier1Color = TIER1DEFAULT;
-				tier2Color = TIER2DEFAULT;
-				tier3Color = TIER3DEFAULT;
-				textColor = TEXTDEFAULT;
-				messageSentColor = MESSAGESENTDEFAULT;
-				messageReceivedColor = MESSAGERECEIVEDDEFAULT;
-				color1 = Color.decode(tier1Color);
-				color2 = Color.decode(tier2Color);
-				color3 = Color.decode(tier3Color);
-				colorText = Color.decode(textColor);
-				colorMessageSent = Color.decode(messageSentColor);
-				colorMessageReceived = Color.decode(messageReceivedColor);
-				tierOneColor.setBackground(color1);
-				tierTwoColor.setBackground(color2);
-				tierThreeColor.setBackground(color3);
-				textColorTextField.setForeground(colorText);
-				messageSentTextField.setForeground(colorMessageSent);
-				messageReceivedTextField.setForeground(colorMessageReceived);	
-				saveSettings();
-				defaultsButton.setSelected(false);
-				defaultsButton.setFocusable(false);
-			}
-		});
-
 		whiteThemeButton.addActionListener(new ActionListener()
 		{
 			@Override
@@ -751,40 +715,7 @@ public class ZcashYUIEditDialog
 		}	
 	}
 	
-	private String[] getAvailableCurrencys() {
-		String[] currencys = null;
-		try {
-			URL u = new URL("https://rates.zecmate.com");
-			HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-			huc.setConnectTimeout(2019);
-			int responseCode = huc.getResponseCode();
 
-			if (responseCode != HttpURLConnection.HTTP_OK) {
-				Log.warning("Could not connect to https://rates.zecmate.com");
-			}else {
-				Reader r = new InputStreamReader(u.openStream(), "UTF-8");
-				JsonArray ar = Json.parse(r).asArray();
-				currencys = new String[ar.size()];
-				for (int i = 0; i < ar.size(); ++i) {
-					JsonObject obj = ar.get(i).asObject();
-					String currency = obj.get("code").toString().replaceAll("\"", "");
-					currencys[i] = currency;
-
- 				}
-				Arrays.sort(currencys);	
-			}
-
-		} catch (Exception ioe) {
-			Log.warning("Could not obtain ZEC information from rates.zecmate.com due to: {0} {1}",
-					ioe.getClass().getName(), ioe.getMessage());
-		}
-		if(currencys == null) {
-			currencys = new String[]{this.currency};
-		}
-		return currencys;
-
-	}
-	
 	private void saveSettings() {
 		ZcashYUIEditDialog.this.saveZCashUISettings();			
 		new ZcashXUI();

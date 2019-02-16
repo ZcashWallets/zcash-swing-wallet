@@ -4,11 +4,22 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Properties;
 
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.ColorUIResource;
+
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
 import com.vaklinov.zcashui.LanguageUtil;
 import com.vaklinov.zcashui.Log;
 import com.vaklinov.zcashui.OSUtil;
@@ -57,7 +68,7 @@ public class ZcashXUI {
 	public static final String VIEWPORT_PROPERTY_COLOR = "viewport.background.color";
 	public static final String MESSAGE_SENT_PROPERTY_COLOR = "message.sent.color";
 	public static final String MESSAGE_RECEIVED_PROPERTY_COLOR = "message.received.color";
-
+	
 	public static final String CURRENCY = "currency";
 
 	public static final String DEFAULT_COLOR = "#ffffff";
@@ -109,17 +120,20 @@ public class ZcashXUI {
 	public static Color messageSent;
 	public static Color messageReceived;
 	public static String currency;
+	
+	public static String[] currencys;
 
 	private static LanguageUtil langUtil = LanguageUtil.instance();
 	
 	public ZcashXUI() {
 		Log.info("Loading ZECmate");
 		loadZcashXUIFile();
+
 		javax.swing.UIManager.put("ScrollBar.background", ZcashXUI.scrollbar);
     	javax.swing.UIManager.put("ScrollPane.background", ZcashXUI.scrollpane);
     	javax.swing.UIManager.put("SplitPane.background", ZcashXUI.splitpane);
     	javax.swing.UIManager.put("TabbedPane.unselectedTabBackground", ZcashXUI.tabbedpaneUnselected);
-		javax.swing.UIManager.put("TabbedPane.focus", ZcashXUI.tabbedpane);
+    	javax.swing.UIManager.put("TabbedPane.focus", ZcashXUI.tabbedpane);
     	javax.swing.UIManager.put("Viewport.background", ZcashXUI.viewport);
     	javax.swing.UIManager.put("ToolTip.background", ZcashXUI.tooltip);
     	
@@ -144,8 +158,15 @@ public class ZcashXUI {
 		javax.swing.UIManager.put("Panel.background",ZcashXUI.panel);
 		javax.swing.UIManager.put("Panel.foreground",ZcashXUI.text);
 		javax.swing.UIManager.put("OptionPane.okButtonText", langUtil.getString("button.option.ok"));
-			
 		
+		Runnable r = new Runnable() {
+	         public void run() {
+	        	 Log.info("Loading Available Currencys in Background.");
+	        	 getAvailableCurrencys();
+	         }
+	     };
+
+	     new Thread(r).start();
 		Log.info("Finished loading ZECmate");
 	}
 
@@ -210,9 +231,9 @@ public class ZcashXUI {
 				textpane = Color.decode(confProps.getProperty(TEXTPANE_PROPERTY_COLOR)!= null? confProps.getProperty(TEXTPANE_PROPERTY_COLOR).trim():DEFAULT_COLOR); 
 				tooltip = Color.decode(confProps.getProperty(TOOLTIP_PROPERTY_COLOR)!= null? confProps.getProperty(TOOLTIP_PROPERTY_COLOR).trim():DEFAULT_COLOR); 
 				viewport = Color.decode(confProps.getProperty(VIEWPORT_PROPERTY_COLOR)!= null? confProps.getProperty(VIEWPORT_PROPERTY_COLOR).trim():DEFAULT_COLOR); 
-				currency = confProps.getProperty(CURRENCY)!= null? confProps.getProperty(CURRENCY).toUpperCase().trim():DEFAULT_CURRENCY; 
 				messageSent = Color.decode(confProps.getProperty(MESSAGE_SENT_PROPERTY_COLOR)!= null? confProps.getProperty(MESSAGE_SENT_PROPERTY_COLOR).trim():DEFAULT_COLOR_BLUE); 
 				messageReceived = Color.decode(confProps.getProperty(MESSAGE_RECEIVED_PROPERTY_COLOR)!= null? confProps.getProperty(MESSAGE_RECEIVED_PROPERTY_COLOR).trim():DEFAULT_COLOR_RED); 
+				currency = confProps.getProperty(CURRENCY)!= null? confProps.getProperty(CURRENCY).toUpperCase().trim():DEFAULT_CURRENCY; 
 				
 			} finally
 			{
@@ -241,5 +262,39 @@ public class ZcashXUI {
 
 
     }
+	
+	private void getAvailableCurrencys() {
+		String[] currencys = null;
+		try {
+			URL u = new URL("https://rates.zecmate.com");
+			HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+			huc.setConnectTimeout(2019);
+			int responseCode = huc.getResponseCode();
+
+			if (responseCode != HttpURLConnection.HTTP_OK) {
+				Log.warning("Could not connect to https://rates.zecmate.com");
+			}else {
+				Reader r = new InputStreamReader(u.openStream(), "UTF-8");
+				JsonArray ar = Json.parse(r).asArray();
+				currencys = new String[ar.size()];
+				for (int i = 0; i < ar.size(); ++i) {
+					JsonObject obj = ar.get(i).asObject();
+					String currency = obj.get("code").toString().replaceAll("\"", "");
+					currencys[i] = currency;
+					
+				}
+				Arrays.sort(currencys);
+			}
+			
+		} catch (Exception ioe) {
+			Log.warning("Could not obtain ZEC information from rates.zecmate.com due to: {0} {1}",
+					ioe.getClass().getName(), ioe.getMessage());
+		}
+		if(currencys == null) {
+			currencys = new String[]{ZcashXUI.currency};
+		}
+		ZcashXUI.currencys = currencys;
+	}
+
 
 }

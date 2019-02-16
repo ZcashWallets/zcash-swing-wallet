@@ -35,6 +35,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.JOptionPane;
@@ -45,6 +46,7 @@ import javax.swing.table.TableModel;
 
 import com.cabecinha84.zcashui.ZcashJFrame;
 import com.cabecinha84.zcashui.ZcashJMenuItem;
+import com.cabecinha84.zcashui.ZcashQRCodeDialog;
 
 
 /**
@@ -55,12 +57,14 @@ public class AddressTable
 {	
 	private LabelStorage labelStorage;
 	private ZCashInstallationObserver installationObserver;
+	private ZcashJFrame parentFrame;
 	
 	public AddressTable(final Object[][] rowData, final Object[] columnNames, 
-			            final ZCashClientCaller caller, LabelStorage labelStorage, 	ZCashInstallationObserver installationObserver)
+			            final ZCashClientCaller caller, LabelStorage labelStorage, 	ZCashInstallationObserver installationObserver,
+			            ZcashJFrame parentFrame)
 	{
 		super(rowData, columnNames);
-		
+		this.parentFrame = parentFrame;
 		this.labelStorage = labelStorage;
 		this.installationObserver = installationObserver;
 		
@@ -131,6 +135,31 @@ public class AddressTable
 			}
 		});
         
+        ZcashJMenuItem qrCode = new ZcashJMenuItem(langUtil.getString("data.table.menu.item.qrcode"));
+        popupMenu.add(qrCode);
+        
+        qrCode.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, accelaratorKeyMask));
+        qrCode.addActionListener(new ActionListener() 
+        {	
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				if ((lastRow >= 0) && (lastColumn >= 0))
+				{
+					String address = AddressTable.this.getModel().getValueAt(lastRow, 3).toString();
+					ZcashQRCodeDialog ad;
+					try {
+						ad = new ZcashQRCodeDialog(address, AddressTable.this.parentFrame);
+						ad.setVisible(true);
+					} catch (IOException e1) {
+						Log.error("Error caused by"+e1.getMessage());
+					}		
+				} else
+				{
+					// Log perhaps
+				}
+			}
+		});
         
 		ZcashJMenuItem setLabel = new ZcashJMenuItem("Set label...");
 		setLabel.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, accelaratorKeyMask));

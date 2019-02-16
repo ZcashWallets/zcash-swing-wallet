@@ -399,7 +399,7 @@ public class AddressesPanel
 		}
 		
 		String columnNames[] = langUtil.getString("panel.address.table.create.address.header").split(":");
-        ZcashJTable table = new AddressTable(rowDataNew, columnNames, this.clientCaller, this.labelStorage, this.installationObserver);
+        ZcashJTable table = new AddressTable(rowDataNew, columnNames, this.clientCaller, this.labelStorage, this.installationObserver, this.parentFrame);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         table.getColumnModel().getColumn(0).setPreferredWidth(280);
         table.getColumnModel().getColumn(1).setPreferredWidth(160);

@@ -639,33 +639,31 @@ public class ZCashUI
         	Log.info("Environment PATH: " + System.getenv("PATH"));
 
             // Look and feel settings - a custom OS-look and feel is set for Windows
-            if (os == OS_TYPE.WINDOWS)
-            {
-            	// Custom Windows L&F and font settings
-            	UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            	
-            	// This font looks good but on Windows 7 it misses some chars like the stars...
-            	//FontUIResource font = new FontUIResource("Lucida Sans Unicode", Font.PLAIN, 11);
-            	//UIManager.put("Table.font", font);
-            } else if (os == OS_TYPE.MAC_OS)
-            {
-            	// The MacOS L&F is active by default - the property sets the menu bar Mac style
-            	System.setProperty("apple.laf.useScreenMenuBar", "true");
-                System.setProperty("com.apple.mrj.application.apple.menu.about.name", LanguageUtil.instance().getString("apple.menu.about.name"));
-            }
-            else
-            {            
-	            for (LookAndFeelInfo lf : UIManager.getInstalledLookAndFeels())
-	            {
-	            	Log.info("Available look and feel: " + lf.getName() + " " + lf.getClassName());
-	                if (lf.getName().equals("Nimbus"))
-	                {
-	                	Log.info("Setting look and feel: {0}", lf.getClassName());
-	                    UIManager.setLookAndFeel(lf.getClassName());
-	                    break;
-	                };
-	            }
-            }
+        	if (os == OS_TYPE.WINDOWS) {
+				// Custom Windows L&F and font settings
+				UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+
+				// This font looks good but on Windows 7 it misses some chars like the stars...
+				// FontUIResource font = new FontUIResource("Lucida Sans Unicode", Font.PLAIN,
+				// 11);
+				// UIManager.put("Table.font", font);
+			} else if (os == OS_TYPE.MAC_OS) {
+				// The MacOS L&F is active by default - the property sets the menu bar Mac style
+				System.setProperty("apple.laf.useScreenMenuBar", "true");
+				System.setProperty("com.apple.mrj.application.apple.menu.about.name",
+						LanguageUtil.instance().getString("apple.menu.about.name"));
+			} else {
+				for (LookAndFeelInfo lf : UIManager.getInstalledLookAndFeels()) {
+					Log.info("Available look and feel: " + lf.getName() + " " + lf.getClassName());
+					if (lf.getName().equals("Nimbus")) {
+						Log.info("Setting look and feel: {0}", lf.getClassName());
+						UIManager.setLookAndFeel(lf.getClassName());
+						break;
+					}
+					;
+				}
+			}
+
             
             // If zcashd is currently not running, do a startup of the daemon as a child process
             // It may be started but not ready - then also show dialog
