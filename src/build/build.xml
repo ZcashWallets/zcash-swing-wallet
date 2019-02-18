@@ -121,7 +121,7 @@
 	
     <target name="ubuntuPackage" depends="jar,copyothers">	
     	<mkdir dir="${ubuntu.package.dir}"/>
-	    <deb destfile="${ubuntu.package.dir}/zecmate-1.1.0.deb" 
+	    <deb destfile="${ubuntu.package.dir}/zecmate-1.2.0.deb" 
 	    	 control="${deb.dir}/control"
 	    	 verbose="true">
 	    	
