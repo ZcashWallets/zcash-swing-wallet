@@ -6,6 +6,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Timer;
 
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -20,7 +21,8 @@ public class ZcashJTextField extends JTextField {
 	private Color backGroundColor = ZcashXUI.textarea;
 	private Color textColor = ZcashXUI.text;
 	private static LanguageUtil langUtil = LanguageUtil.instance();
-	private boolean keyEventExecuted = false;
+	private ZcashJTextField keyActionAux;
+    private Timer timer;
 	public ZcashJTextField() {
 		super();
 		this.setBackground(backGroundColor);
@@ -89,62 +91,53 @@ public class ZcashJTextField extends JTextField {
  		this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_C && !keyEventExecuted) {
-                	keyEventExecuted = true;
-                	ZcashJTextField textField = (ZcashJTextField) e.getSource();
-                	textField.copy();
-                	Runnable r = new Runnable() {
-            		public void run() {
-           	        	try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							Log.error("Error sleeping thread for processkeyAction: "+e.getMessage());
-						}
-           	        	 processKeyAction();
-	           	         }
-	           	    };
-	
-	           	    new Thread(r).start();
+                if (e.getKeyCode() == KeyEvent.VK_C ) {
+                	if(timer != null) {
+                		timer.cancel();
+                	}
+                	keyActionAux = (ZcashJTextField) e.getSource();
+                	timer = new Timer(true);
+                	timer.schedule(new java.util.TimerTask() {
+                	            @Override
+                	            public void run() {
+                	            	
+                	            	keyActionAux.copy();
+                	            }
+                	        }, 
+                			250 );
                 }
-				if (e.getKeyCode() == KeyEvent.VK_X && !keyEventExecuted) {
-					keyEventExecuted = true;
-                	ZcashJTextField textField = (ZcashJTextField) e.getSource();
-                	textField.cut();
-                	Runnable r = new Runnable() {
-            		public void run() {
-           	        	try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							Log.error("Error sleeping thread for processkeyAction: "+e.getMessage());
-						}
-           	        	 processKeyAction();
-	           	         }
-	           	    };
-    	           	new Thread(r).start();
+				if (e.getKeyCode() == KeyEvent.VK_X) {
+					if(timer != null) {
+                		timer.cancel();
+                	}
+					keyActionAux = (ZcashJTextField) e.getSource();
+                	timer = new Timer(true);
+                	timer.schedule(new java.util.TimerTask() {
+                	            @Override
+                	            public void run() {
+                	            	
+                	            	keyActionAux.cut();
+                	            }
+                	        }, 
+                			250 );
                 }
-                if (e.getKeyCode() == KeyEvent.VK_V && !keyEventExecuted) {
-                	keyEventExecuted = true;
-                	ZcashJTextField textField = (ZcashJTextField) e.getSource();
-                	textField.paste();
-                	Runnable r = new Runnable() {
-            		public void run() {
-           	        	try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							Log.error("Error sleeping thread for processkeyAction: "+e.getMessage());
-						}
-           	        	 processKeyAction();
-	           	         }
-	           	    };
-   	
-   	           	    new Thread(r).start();
+                if (e.getKeyCode() == KeyEvent.VK_V) {
+                	if(timer != null) {
+                		timer.cancel();
+                	}
+					keyActionAux = (ZcashJTextField) e.getSource();
+                	timer = new Timer(true);
+                	timer.schedule(new java.util.TimerTask() {
+                	            @Override
+                	            public void run() {
+                	            	
+                	            	keyActionAux.paste();
+                	            }
+                	        }, 
+                			250 );
                 }
             }
         });
-	}
-	
-	private void processKeyAction() {
-		keyEventExecuted = false;
 	}
 		
 }
