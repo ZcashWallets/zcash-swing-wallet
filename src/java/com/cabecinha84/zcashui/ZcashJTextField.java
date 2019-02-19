@@ -16,13 +16,14 @@ import javax.swing.text.Document;
 
 import com.vaklinov.zcashui.LanguageUtil;
 import com.vaklinov.zcashui.Log;
+import com.vaklinov.zcashui.OSUtil;
+import com.vaklinov.zcashui.OSUtil.OS_TYPE;
 
 public class ZcashJTextField extends JTextField {
 	private Color backGroundColor = ZcashXUI.textarea;
 	private Color textColor = ZcashXUI.text;
 	private static LanguageUtil langUtil = LanguageUtil.instance();
 	private ZcashJTextField keyActionAux;
-    private Timer timer;
 	public ZcashJTextField() {
 		super();
 		this.setBackground(backGroundColor);
@@ -92,49 +93,20 @@ public class ZcashJTextField extends JTextField {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_C ) {
-                	if(timer != null) {
-                		timer.cancel();
-                	}
-                	keyActionAux = (ZcashJTextField) e.getSource();
-                	timer = new Timer(true);
-                	timer.schedule(new java.util.TimerTask() {
-                	            @Override
-                	            public void run() {
-                	            	
-                	            	keyActionAux.copy();
-                	            }
-                	        }, 
-                			250 );
+    				keyActionAux = (ZcashJTextField) e.getSource();
+    				keyActionAux.copy();
                 }
 				if (e.getKeyCode() == KeyEvent.VK_X) {
-					if(timer != null) {
-                		timer.cancel();
-                	}
-					keyActionAux = (ZcashJTextField) e.getSource();
-                	timer = new Timer(true);
-                	timer.schedule(new java.util.TimerTask() {
-                	            @Override
-                	            public void run() {
-                	            	
-                	            	keyActionAux.cut();
-                	            }
-                	        }, 
-                			250 );
+    				keyActionAux = (ZcashJTextField) e.getSource();
+    				keyActionAux.cut();
                 }
                 if (e.getKeyCode() == KeyEvent.VK_V) {
-                	if(timer != null) {
-                		timer.cancel();
-                	}
-					keyActionAux = (ZcashJTextField) e.getSource();
-                	timer = new Timer(true);
-                	timer.schedule(new java.util.TimerTask() {
-                	            @Override
-                	            public void run() {
-                	            	
-                	            	keyActionAux.paste();
-                	            }
-                	        }, 
-                			250 );
+                	OS_TYPE os = OSUtil.getOSType();
+
+        			if (os == OS_TYPE.WINDOWS) {
+        				keyActionAux = (ZcashJTextField) e.getSource();
+        				keyActionAux.paste();
+        			}
                 }
             }
         });
