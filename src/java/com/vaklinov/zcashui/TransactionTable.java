@@ -84,27 +84,21 @@ public class TransactionTable
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if ((lastRow >= 0) && (lastColumn >= 0))
+				try
 				{
-					try
-					{
-						String txID = TransactionTable.this.getModel().getValueAt(lastRow, 6).toString();
-						txID = txID.replaceAll("\"", ""); // In case it has quotes
-						
-						Log.info("Transaction ID for detail dialog is: " + txID);
-						Map<String, String> details = caller.getRawTransactionDetails(txID);
-						String rawTrans = caller.getRawTransaction(txID);
-						
-						DetailsDialog dd = new DetailsDialog(parent, details);
-						dd.setVisible(true);
-					} catch (Exception ex)
-					{
-						Log.error("Unexpected error: ", ex);
-						// TODO: report exception to user
-					}
-				} else
+					String txID = TransactionTable.this.getModel().getValueAt(TransactionTable.this.getSelectedRow(), 6).toString();
+					txID = txID.replaceAll("\"", ""); // In case it has quotes
+					
+					Log.info("Transaction ID for detail dialog is: " + txID);
+					Map<String, String> details = caller.getRawTransactionDetails(txID);
+					String rawTrans = caller.getRawTransaction(txID);
+					
+					DetailsDialog dd = new DetailsDialog(parent, details);
+					dd.setVisible(true);
+				} catch (Exception ex)
 				{
-					// Log perhaps
+					Log.error("Unexpected error: ", ex);
+					// TODO: report exception to user
 				}
 			}
 		});
@@ -119,30 +113,24 @@ public class TransactionTable
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if ((lastRow >= 0) && (lastColumn >= 0))
+				try
 				{
-					try
+					String txID = TransactionTable.this.getModel().getValueAt(TransactionTable.this.getSelectedRow(), 6).toString();
+					txID = txID.replaceAll("\"", ""); // In case it has quotes
+					
+					Log.info("Transaction ID for block explorer is: " + txID);
+					// https://explorer.zcha.in/transactions/<ID>
+					String urlPrefix = "https://zcash.blockexplorer.com/tx/";
+					if (installationObserver.isOnTestNet())
 					{
-						String txID = TransactionTable.this.getModel().getValueAt(lastRow, 6).toString();
-						txID = txID.replaceAll("\"", ""); // In case it has quotes
-						
-						Log.info("Transaction ID for block explorer is: " + txID);
-						// https://explorer.zcha.in/transactions/<ID>
-						String urlPrefix = "https://zcash.blockexplorer.com/tx/";
-						if (installationObserver.isOnTestNet())
-						{
-							urlPrefix = "https://explorer.testnet.z.cash/tx/";
-						}
-						
-						Desktop.getDesktop().browse(new URL(urlPrefix + txID).toURI());
-					} catch (Exception ex)
-					{
-						Log.error("Unexpected error: ", ex);
-						// TODO: report exception to user
+						urlPrefix = "https://explorer.testnet.z.cash/tx/";
 					}
-				} else
+					
+					Desktop.getDesktop().browse(new URL(urlPrefix + txID).toURI());
+				} catch (Exception ex)
 				{
-					// Log perhaps
+					Log.error("Unexpected error: ", ex);
+					// TODO: report exception to user
 				}
 			}
 		});
@@ -156,72 +144,67 @@ public class TransactionTable
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if ((lastRow >= 0) && (lastColumn >= 0))
-				{
-					Cursor oldCursor = parent.getCursor();
-					try
-					{
-						String txID = TransactionTable.this.getModel().getValueAt(lastRow, 6).toString();
-						txID = txID.replaceAll("\"", ""); // In case it has quotes
-						
 
-						String acc = TransactionTable.this.getModel().getValueAt(lastRow, 5).toString();
-						// TODO: better way to remove a label if it preceeds
-						if (acc.contains(" - "))
-						{
-							acc = acc.substring(acc.lastIndexOf(" - ") + 3);
-						}
-						
-						acc = acc.replaceAll("\"", ""); // In case it has quotes
-						
-						boolean isZAddress = Util.isZAddress(acc);
-						if (!isZAddress)
-						{
-					        JOptionPane.showMessageDialog(
-						            parent,
-						            langUtil.getString("transactions.table.memo.unavailable.text"),
-						            langUtil.getString("transactions.table.memo.unavailable.title"),
-						            JOptionPane.ERROR_MESSAGE);
-						    return;
-						}
-						
-						
-						Log.info("Transaction ID for Memo field is: " + txID);
-						Log.info("Account for Memo field is: " + acc);
-						parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-						// TODO: someday support outgoing Z transactions
- 						String MemoField = caller.getMemoField(acc, txID);
- 						parent.setCursor(oldCursor);
- 						Log.info("Memo field is: " + MemoField);
- 						
- 						if (MemoField != null)
- 						{
- 							Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
- 							clipboard.setContents(new StringSelection(MemoField), null);
- 							
- 							MemoField = Util.blockWrapString(MemoField, 80);
- 							JOptionPane.showMessageDialog(
- 								parent, 
- 								langUtil.getString("transactions.table.memo.clipboard.text", MemoField),
-								langUtil.getString("transactions.table.memo.clipboard.title"),
-								JOptionPane.PLAIN_MESSAGE);
- 						} else
- 						{
-					        JOptionPane.showMessageDialog(
-						            parent,
-						            langUtil.getString("transactions.table.memo.field.missing.text"),
-						            langUtil.getString("transactions.table.memo.field.missing.title"),
-						            JOptionPane.ERROR_MESSAGE);
- 						}
-					} catch (Exception ex)
-					{
-						parent.setCursor(oldCursor);
-						Log.error("", ex);
-						// TODO: report exception to user
-					}
-				} else
+				Cursor oldCursor = parent.getCursor();
+				try
 				{
-					// Log perhaps
+					String txID = TransactionTable.this.getModel().getValueAt(TransactionTable.this.getSelectedRow(), 6).toString();
+					txID = txID.replaceAll("\"", ""); // In case it has quotes
+					
+
+					String acc = TransactionTable.this.getModel().getValueAt(TransactionTable.this.getSelectedRow(), 5).toString();
+					// TODO: better way to remove a label if it preceeds
+					if (acc.contains(" - "))
+					{
+						acc = acc.substring(acc.lastIndexOf(" - ") + 3);
+					}
+					
+					acc = acc.replaceAll("\"", ""); // In case it has quotes
+					
+					boolean isZAddress = Util.isZAddress(acc);
+					if (!isZAddress)
+					{
+				        JOptionPane.showMessageDialog(
+					            parent,
+					            langUtil.getString("transactions.table.memo.unavailable.text"),
+					            langUtil.getString("transactions.table.memo.unavailable.title"),
+					            JOptionPane.ERROR_MESSAGE);
+					    return;
+					}
+					
+					
+					Log.info("Transaction ID for Memo field is: " + txID);
+					Log.info("Account for Memo field is: " + acc);
+					parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					// TODO: someday support outgoing Z transactions
+					String MemoField = caller.getMemoField(acc, txID);
+					parent.setCursor(oldCursor);
+					Log.info("Memo field is: " + MemoField);
+					
+					if (MemoField != null)
+					{
+						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+						clipboard.setContents(new StringSelection(MemoField), null);
+						
+						MemoField = Util.blockWrapString(MemoField, 80);
+						JOptionPane.showMessageDialog(
+							parent, 
+							langUtil.getString("transactions.table.memo.clipboard.text", MemoField),
+							langUtil.getString("transactions.table.memo.clipboard.title"),
+							JOptionPane.PLAIN_MESSAGE);
+					} else
+					{
+				        JOptionPane.showMessageDialog(
+					            parent,
+					            langUtil.getString("transactions.table.memo.field.missing.text"),
+					            langUtil.getString("transactions.table.memo.field.missing.title"),
+					            JOptionPane.ERROR_MESSAGE);
+					}
+				} catch (Exception ex)
+				{
+					parent.setCursor(oldCursor);
+					Log.error("", ex);
+					// TODO: report exception to user
 				}
 			}
         });

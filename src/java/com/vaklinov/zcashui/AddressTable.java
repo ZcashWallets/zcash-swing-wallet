@@ -79,58 +79,52 @@ public class AddressTable
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if ((lastRow >= 0) && (lastColumn >= 0))
+				try
 				{
-					try
+					String address = AddressTable.this.getModel().getValueAt(AddressTable.this.getSelectedRow(), 3).toString();
+					boolean isZAddress = Util.isZAddress(address);
+					
+					// Check for encrypted wallet
+					final boolean bEncryptedWallet = caller.isWalletEncrypted();
+					if (bEncryptedWallet)
 					{
-						String address = AddressTable.this.getModel().getValueAt(lastRow, 3).toString();
-						boolean isZAddress = Util.isZAddress(address);
+						PasswordDialog pd = new PasswordDialog((ZcashJFrame)(AddressTable.this.getRootPane().getParent()));
+						pd.setVisible(true);
 						
-						// Check for encrypted wallet
-						final boolean bEncryptedWallet = caller.isWalletEncrypted();
-						if (bEncryptedWallet)
+						if (!pd.isOKPressed())
 						{
-							PasswordDialog pd = new PasswordDialog((ZcashJFrame)(AddressTable.this.getRootPane().getParent()));
-							pd.setVisible(true);
-							
-							if (!pd.isOKPressed())
-							{
-								return;
-							}
-							
-							caller.unlockWallet(pd.getPassword());
+							return;
 						}
 						
-						String privateKey = isZAddress ?
-							caller.getZPrivateKey(address) : caller.getTPrivateKey(address);
-							
-						// Lock the wallet again 
-						if (bEncryptedWallet)
-						{
-							caller.lockWallet();
-						}
-							
-						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-						clipboard.setContents(new StringSelection(privateKey), null);
-						
-						JOptionPane.showMessageDialog(
-							AddressTable.this.getRootPane().getParent(), 
-							(isZAddress ? langUtil.getString("table.address.option.pane.text.private") : langUtil.getString("table.address.option.pane.text.transparent")) +
-								langUtil.getString("table.address.option.pane.text.rest", address, privateKey),
-								langUtil.getString("table.address.option.pane.title"), JOptionPane.INFORMATION_MESSAGE);
-
-						
-					} catch (Exception ex){
-						Log.error("Unexpected error: ", ex);
-			            JOptionPane.showMessageDialog(
-			                AddressTable.this.getRootPane().getParent(),
-					        langUtil.getString("table.address.option.pane.error.text", ex.getMessage()),
-					        langUtil.getString("table.address.option.pane.error.title"),
-					        JOptionPane.ERROR_MESSAGE);
+						caller.unlockWallet(pd.getPassword());
 					}
-				} else
-				{
-					// Log perhaps
+					
+					String privateKey = isZAddress ?
+						caller.getZPrivateKey(address) : caller.getTPrivateKey(address);
+						
+					// Lock the wallet again 
+					if (bEncryptedWallet)
+					{
+						caller.lockWallet();
+					}
+						
+					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+					clipboard.setContents(new StringSelection(privateKey), null);
+					
+					JOptionPane.showMessageDialog(
+						AddressTable.this.getRootPane().getParent(), 
+						(isZAddress ? langUtil.getString("table.address.option.pane.text.private") : langUtil.getString("table.address.option.pane.text.transparent")) +
+							langUtil.getString("table.address.option.pane.text.rest", address, privateKey),
+							langUtil.getString("table.address.option.pane.title"), JOptionPane.INFORMATION_MESSAGE);
+
+					
+				} catch (Exception ex){
+					Log.error("Unexpected error: ", ex);
+		            JOptionPane.showMessageDialog(
+		                AddressTable.this.getRootPane().getParent(),
+				        langUtil.getString("table.address.option.pane.error.text", ex.getMessage()),
+				        langUtil.getString("table.address.option.pane.error.title"),
+				        JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -144,20 +138,16 @@ public class AddressTable
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if ((lastRow >= 0) && (lastColumn >= 0))
-				{
-					String address = AddressTable.this.getModel().getValueAt(lastRow, 3).toString();
-					ZcashQRCodeDialog ad;
-					try {
-						ad = new ZcashQRCodeDialog(address, AddressTable.this.parentFrame);
-						ad.setVisible(true);
-					} catch (IOException e1) {
-						Log.error("Error caused by"+e1.getMessage());
-					}		
-				} else
-				{
-					// Log perhaps
-				}
+
+				String address = AddressTable.this.getModel().getValueAt(AddressTable.this.getSelectedRow(), 3).toString();
+				ZcashQRCodeDialog ad;
+				try {
+					ad = new ZcashQRCodeDialog(address, AddressTable.this.parentFrame);
+					ad.setVisible(true);
+				} catch (IOException e1) {
+					Log.error("Error caused by"+e1.getMessage());
+				}		
+
 			}
 		});
         
@@ -170,38 +160,33 @@ public class AddressTable
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if ((lastRow >= 0) && (lastColumn >= 0))
-				{
-					try
-					{
-			            TableModel model = AddressTable.this.getModel();
-			            
-			            String oldLabel = (String)model.getValueAt(lastRow, 0);
-						String label = (String) JOptionPane.showInputDialog(AddressTable.this,
-			                    "Please enter a label for the address:",
-			                    "Label of the address...",
-			                    JOptionPane.PLAIN_MESSAGE, null, null, oldLabel);
 
-						if (!Util.stringIsEmpty(label))
-						{
-							model.setValueAt(label, lastRow, 0);
-						}
-			            
-			            AddressTable.this.invalidate();
-			            AddressTable.this.repaint();
-						
-					} catch (Exception ex)
-					{
-						Log.error("Unexpected error: ", ex);
-			            JOptionPane.showMessageDialog(
-			                AddressTable.this.getRootPane().getParent(),
-					        "Error in setting label:" + "\n" + ex.getMessage() + "\n\n",
-					        "Error in obtaining private key!",
-					        JOptionPane.ERROR_MESSAGE);
-					}
-				} else
+				try
 				{
-					// Log perhaps
+		            TableModel model = AddressTable.this.getModel();
+		            
+		            String oldLabel = (String)model.getValueAt(AddressTable.this.getSelectedRow(), 0);
+					String label = (String) JOptionPane.showInputDialog(AddressTable.this,
+		                    "Please enter a label for the address:",
+		                    "Label of the address...",
+		                    JOptionPane.PLAIN_MESSAGE, null, null, oldLabel);
+
+					if (!Util.stringIsEmpty(label))
+					{
+						model.setValueAt(label, AddressTable.this.getSelectedRow(), 0);
+					}
+		            
+		            AddressTable.this.invalidate();
+		            AddressTable.this.repaint();
+					
+				} catch (Exception ex)
+				{
+					Log.error("Unexpected error: ", ex);
+		            JOptionPane.showMessageDialog(
+		                AddressTable.this.getRootPane().getParent(),
+				        "Error in setting label:" + "\n" + ex.getMessage() + "\n\n",
+				        "Error in obtaining private key!",
+				        JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -215,41 +200,35 @@ public class AddressTable
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if ((lastRow >= 0) && (lastColumn >= 0))
+				try
 				{
-					try
+					String address = AddressTable.this.getModel().getValueAt(AddressTable.this.getSelectedRow(), 3).toString();
+					address = address.replaceAll("\"", ""); // In case it has quotes
+					
+					if ((!AddressTable.this.installationObserver.isOnTestNet()) && Util.isZAddress(address))
 					{
-						String address = AddressTable.this.getModel().getValueAt(lastRow, 3).toString();
-						address = address.replaceAll("\"", ""); // In case it has quotes
-						
-						if ((!AddressTable.this.installationObserver.isOnTestNet()) && Util.isZAddress(address))
-						{
-				           JOptionPane.showMessageDialog(
-				               AddressTable.this.getRootPane().getParent(),
-				               langUtil.getString("table.address.show.in.explorer.zaddress.message", address),
-				               langUtil.getString("table.address.show.in.explorer.zaddress.title"),
-					           JOptionPane.ERROR_MESSAGE);
+			           JOptionPane.showMessageDialog(
+			               AddressTable.this.getRootPane().getParent(),
+			               langUtil.getString("table.address.show.in.explorer.zaddress.message", address),
+			               langUtil.getString("table.address.show.in.explorer.zaddress.title"),
+				           JOptionPane.ERROR_MESSAGE);
 
-							return;
-						}
-						
-						Log.info("Address for block explorer is: " + address);
-						
-						String urlPrefix = "https://zcash.blockexplorer.com/address/";
-						if (AddressTable.this.installationObserver.isOnTestNet())
-						{
-							urlPrefix = "https://explorer.testnet.z.cash/address/";
-						}
-						
-						Desktop.getDesktop().browse(new URL(urlPrefix + address).toURI());
-					} catch (Exception ex)
-					{
-						Log.error("Unexpected error: ", ex);
-						// TODO: report exception to user
+						return;
 					}
-				} else
+					
+					Log.info("Address for block explorer is: " + address);
+					
+					String urlPrefix = "https://zcash.blockexplorer.com/address/";
+					if (AddressTable.this.installationObserver.isOnTestNet())
+					{
+						urlPrefix = "https://explorer.testnet.z.cash/address/";
+					}
+					
+					Desktop.getDesktop().browse(new URL(urlPrefix + address).toURI());
+				} catch (Exception ex)
 				{
-					// Log perhaps
+					Log.error("Unexpected error: ", ex);
+					// TODO: report exception to user
 				}
 			}
 		});
