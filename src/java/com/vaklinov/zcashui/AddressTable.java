@@ -224,7 +224,7 @@ public class AddressTable
 					
 					Log.info("Address for block explorer is: " + address);
 					
-					String urlPrefix = "https://zcash.blockexplorer.com/address/";
+					String urlPrefix = "https://explorer.zecmate.com/address/";
 					if (AddressTable.this.installationObserver.isOnTestNet())
 					{
 						urlPrefix = "https://explorer.testnet.z.cash/address/";
