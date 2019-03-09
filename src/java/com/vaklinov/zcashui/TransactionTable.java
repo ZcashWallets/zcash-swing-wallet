@@ -86,7 +86,9 @@ public class TransactionTable
 			{
 				try
 				{
-					String txID = TransactionTable.this.getModel().getValueAt(TransactionTable.this.getSelectedRow(), 6).toString();
+					int row = TransactionTable.this.convertRowIndexToModel(TransactionTable.this.getSelectedRow());
+					
+					String txID = TransactionTable.this.getModel().getValueAt(row, 6).toString();
 					txID = txID.replaceAll("\"", ""); // In case it has quotes
 					
 					Log.info("Transaction ID for detail dialog is: " + txID);
@@ -115,7 +117,9 @@ public class TransactionTable
 			{
 				try
 				{
-					String txID = TransactionTable.this.getModel().getValueAt(TransactionTable.this.getSelectedRow(), 6).toString();
+					int row = TransactionTable.this.convertRowIndexToModel(TransactionTable.this.getSelectedRow());
+					
+					String txID = TransactionTable.this.getModel().getValueAt(row, 6).toString();
 					txID = txID.replaceAll("\"", ""); // In case it has quotes
 					
 					Log.info("Transaction ID for block explorer is: " + txID);
@@ -148,11 +152,13 @@ public class TransactionTable
 				Cursor oldCursor = parent.getCursor();
 				try
 				{
-					String txID = TransactionTable.this.getModel().getValueAt(TransactionTable.this.getSelectedRow(), 6).toString();
+					int row = TransactionTable.this.convertRowIndexToModel(TransactionTable.this.getSelectedRow());
+					
+					String txID = TransactionTable.this.getModel().getValueAt(row, 6).toString();
 					txID = txID.replaceAll("\"", ""); // In case it has quotes
 					
 
-					String acc = TransactionTable.this.getModel().getValueAt(TransactionTable.this.getSelectedRow(), 5).toString();
+					String acc = TransactionTable.this.getModel().getValueAt(row, 5).toString();
 					// TODO: better way to remove a label if it preceeds
 					if (acc.contains(" - "))
 					{

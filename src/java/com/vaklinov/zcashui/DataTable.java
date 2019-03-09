@@ -90,7 +90,10 @@ public class DataTable
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				String text = DataTable.this.getValueAt(DataTable.this.getSelectedRow(), DataTable.this.getSelectedColumn()).toString();
+				int row = DataTable.this.convertRowIndexToModel(DataTable.this.getSelectedRow());
+				int column = DataTable.this.convertColumnIndexToModel(DataTable.this.getSelectedColumn());
+				
+				String text = DataTable.this.getValueAt(row, column).toString();
 			
 				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 				clipboard.setContents(new StringSelection(text), null);
