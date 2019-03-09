@@ -2,7 +2,7 @@
 <installation version="5.0">
   <info>
     <appname>ZECmate</appname>
-    <appversion>1.2.0</appversion>
+    <appversion>1.2.1</appversion>
     <url>https://zecmate.com</url>
     <authors>
         <author name="Ivan Vaklinov" email="ivan@vaklinov.com"/>
@@ -48,7 +48,7 @@
   <variables>
     <variable name="InstallerFrame.logfilePath" value="Default"/>
     <variable name="WELCOME_TEXT" value="ZECmate Swing Wallet Installation"/>
-    <variable name="WELCOME_VERSION" value="Version: 1.2.0"/>
+    <variable name="WELCOME_VERSION" value="Version: 1.2.1"/>
     <variable name="WELCOME_BG_COLOR" value="#404B62"/>
     <variable name="WELCOME_TEXT_COLOR" value="#ffffff"/>
   </variables>
