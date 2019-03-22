@@ -4,14 +4,19 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Vector;
 
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import javax.swing.text.DefaultEditorKit;
 
 public class ZcashJTable extends JTable {
 	private Color backGroundColor = ZcashXUI.table;
@@ -81,28 +86,35 @@ public class ZcashJTable extends JTable {
 	}
 
 	private void addClipBoardMenuOptions() {
-	    this.addKeyListener(new KeyAdapter() {
-	        @Override
-	        public void keyReleased(KeyEvent e) {
-	            if (e.getKeyCode() == KeyEvent.VK_C) {
-	            	int lastRow = getSelectedRow();
-	            	int lastColumn = getSelectedColumn();
-	            	if ((lastRow >= 0) && (lastColumn >= 0))
-					{
-						String text = getValueAt(lastRow, lastColumn).toString();
+		this.getInputMap(javax.swing.JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), DefaultEditorKit.copyAction);
+		ActionListener listener = new ActionListener() {
+		  public void actionPerformed(ActionEvent event) {
+			  doCopy();
+		  }
+		};
 
- 						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-						clipboard.setContents(new StringSelection(text), null);
-					} else
-					{
-						// Log perhaps
-					}
-	            }
-	        }
-	    });
+		final KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+
+		this.registerKeyboardAction(listener, "Copy", stroke, JComponent.WHEN_FOCUSED);
 	}
-
-
 	
+	private void doCopy() {
+	    int col = this.getSelectedColumn();
+	    int row = this.getSelectedRow();
+	    if (col != -1 && row != -1) {
+	        Object value = this.getValueAt(row, col);
+	        String data;
+	        if (value == null) {
+	            data = "";
+	        } else {
+	            data = value.toString();
+	        }
+
+	        final StringSelection selection = new StringSelection(data);     
+
+	        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	        clipboard.setContents(selection, selection);
+	    }
+	}
 }
 

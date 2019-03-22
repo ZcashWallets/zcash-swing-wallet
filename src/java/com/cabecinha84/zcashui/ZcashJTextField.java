@@ -89,27 +89,11 @@ public class ZcashJTextField extends JTextField {
             	}
             }
         });
- 		this.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_C ) {
-    				keyActionAux = (ZcashJTextField) e.getSource();
-    				keyActionAux.copy();
-                }
-				if (e.getKeyCode() == KeyEvent.VK_X) {
-    				keyActionAux = (ZcashJTextField) e.getSource();
-    				keyActionAux.cut();
-                }
-                if (e.getKeyCode() == KeyEvent.VK_V) {
-                	OS_TYPE os = OSUtil.getOSType();
-
-        			if (os == OS_TYPE.WINDOWS) {
-        				keyActionAux = (ZcashJTextField) e.getSource();
-        				keyActionAux.paste();
-        			}
-                }
-            }
-        });
+ 		
+ 		this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), DefaultEditorKit.copyAction);
+		this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), DefaultEditorKit.cutAction);
+		this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), DefaultEditorKit.pasteAction);
+		this.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), DefaultEditorKit.selectAllAction);
 	}
 		
 }
