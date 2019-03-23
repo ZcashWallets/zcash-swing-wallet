@@ -81,7 +81,7 @@ The details of how to build it are described below (easy to follow).
 
    3.1. If you have built Zcash from source code:
 
-     Assuming you have already built from source code [Zcash](https://z.cash/) in directory `/home/user/zcash/src` (for example - this is the typical build dir. for Zcash v1.2.1) which contains the command line tools `zcash-cli` and `zcashd` you need to take the created JAR files and copy them to directory `/home/user/zcash/src` (the same dir. that contains `zcash-cli` and `zcashd`). Example copy command:
+     Assuming you have already built from source code [Zcash](https://z.cash/) in directory `/home/user/zcash/src` (for example - this is the typical build dir. for Zcash v2.0.3) which contains the command line tools `zcash-cli` and `zcashd` you need to take the created JAR files and copy them to directory `/home/user/zcash/src` (the same dir. that contains `zcash-cli` and `zcashd`). Example copy command:
       ```
       user@ubuntu:~/build-dir/ZECmate-swing-wallet$ cp -R -v ./build/jars/* /home/user/zcash/src    
       ```
