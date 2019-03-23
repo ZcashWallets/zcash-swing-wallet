@@ -142,16 +142,16 @@
 		  </data>
 	    	
 	    	<data src="${jar.dir}/zxing-core-3.3.3.jar" type="file">
-				<mapper type="perm" filemode="755" prefix="/usr/lib/zelcash-gui-wallet" />
+				<mapper type="perm" filemode="755" prefix="/usr/lib/zzecmate-gui-wallet" />
 			</data>
 			<data src="${jar.dir}/zxing-core-3.3.3_LICENSE.txt" type="file">
-				<mapper type="perm" filemode="755" prefix="/usr/lib/zelcash-gui-wallet" />
+				<mapper type="perm" filemode="755" prefix="/usr/lib/zecmate-gui-wallet" />
 			</data>
 			<data src="${jar.dir}/zxing-javase-3.3.3.jar" type="file">
-				<mapper type="perm" filemode="755" prefix="/usr/lib/zelcash-gui-wallet" />
+				<mapper type="perm" filemode="755" prefix="/usr/lib/zecmate-gui-wallet" />
 			</data>
 			<data src="${jar.dir}/zxing-javase-3.3.3_LICENSE.txt" type="file">
-				<mapper type="perm" filemode="755" prefix="/usr/lib/zelcash-gui-wallet" />
+				<mapper type="perm" filemode="755" prefix="/usr/lib/zecmate-gui-wallet" />
 			</data>
 
 			<!-- TODO: As of Nov 2017 the IPFS wallet integration is suspended.
