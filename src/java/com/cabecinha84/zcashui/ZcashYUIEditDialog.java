@@ -81,7 +81,7 @@ public class ZcashYUIEditDialog
 	private static final String GREYMESSAGESENTDEFAULT = "#00ff33";
 	private static final String GREYMESSAGERECEIVEDDEFAULT = "#1a1aff";
 
-	private static final String THUNDERTIER1DEFAULT = "#212121";
+	private static final String THUNDERTIER1DEFAULT = "#3d3d3d";
 	private static final String THUNDERTIER2DEFAULT = "#484848";
 	private static final String THUNDERTIER3DEFAULT = "#484848";
 	private static final String THUNDERTEXTDEFAULT = "#4dd0e1";

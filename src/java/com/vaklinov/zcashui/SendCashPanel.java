@@ -631,17 +631,34 @@ public class SendCashPanel
 			bEncryptedWallet = this.clientCaller.isWalletEncrypted();
 			if (bEncryptedWallet)
 			{
-				this.getRootPane().getParent().setCursor(oldCursor);
-				PasswordDialog pd = new PasswordDialog((ZcashJFrame)(SendCashPanel.this.getRootPane().getParent()));
-				pd.setVisible(true);
-				this.getRootPane().getParent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				
-				if (!pd.isOKPressed())
-				{
-					return;
+				boolean passwordOk = false;
+				int retrys = 0;
+				while(!passwordOk && retrys<3) {
+					++retrys;
+					PasswordDialog pd = new PasswordDialog((ZcashJFrame)(SendCashPanel.this.getRootPane().getParent()));
+					pd.setVisible(true);
+
+					if (!pd.isOKPressed())
+					{
+						return;
+					}
+					try {
+						this.clientCaller.unlockWallet(pd.getPassword());
+						passwordOk = true;
+					}
+					catch (Exception ex) {
+						Log.error("Error unlocking wallet:"+ex.getMessage());
+						JOptionPane.showMessageDialog(
+								SendCashPanel.this.getRootPane().getParent(), 
+								langUtil.getString("encryption.error.unlocking.message", ex.getMessage()),
+								langUtil.getString("encryption.error.unlocking.title"),
+								JOptionPane.ERROR_MESSAGE);
+					}
 				}
-				
-				this.clientCaller.unlockWallet(pd.getPassword());
+				if(!passwordOk) {
+					Log.info("Failed to enter correct password for third time, wallet will close.");
+					System.exit(1);
+				}
 			}
 			
 			boolean sendChangeBackToAddres = this.sendChangeBackToSourceAddress.isSelected();
@@ -725,7 +742,7 @@ public class SendCashPanel
 						// Lock the wallet again 
 						if (bEncryptedWalletForThread)
 						{
-							SendCashPanel.this.clientCaller.lockWallet();
+							//SendCashPanel.this.clientCaller.lockWallet();
 						}
 						
 						// Restore controls etc.

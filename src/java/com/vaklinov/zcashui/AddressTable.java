@@ -90,15 +90,34 @@ public class AddressTable
 					final boolean bEncryptedWallet = caller.isWalletEncrypted();
 					if (bEncryptedWallet)
 					{
-						PasswordDialog pd = new PasswordDialog((ZcashJFrame)(AddressTable.this.getRootPane().getParent()));
-						pd.setVisible(true);
-						
-						if (!pd.isOKPressed())
-						{
-							return;
+						boolean passwordOk = false;
+						int retrys = 0;
+						while(!passwordOk && retrys<3) {
+							++retrys;
+							PasswordDialog pd = new PasswordDialog((ZcashJFrame)(AddressTable.this.getRootPane().getParent()));
+							pd.setVisible(true);
+
+							if (!pd.isOKPressed())
+							{
+								return;
+							}
+							try {
+								caller.unlockWallet(pd.getPassword());
+								passwordOk = true;
+							}
+							catch (Exception ex) {
+								Log.error("Error unlocking wallet:"+ex.getMessage());
+								JOptionPane.showMessageDialog(
+										AddressTable.this.getRootPane().getParent(), 
+										langUtil.getString("encryption.error.unlocking.message", ex.getMessage()),
+										langUtil.getString("encryption.error.unlocking.title"),
+										JOptionPane.ERROR_MESSAGE);
+							}
 						}
-						
-						caller.unlockWallet(pd.getPassword());
+						if(!passwordOk) {
+							Log.info("Failed to enter correct password for third time, wallet will close.");
+							System.exit(1);
+						}
 					}
 					
 					String privateKey = isZAddress ?
@@ -107,7 +126,7 @@ public class AddressTable
 					// Lock the wallet again 
 					if (bEncryptedWallet)
 					{
-						caller.lockWallet();
+						//caller.lockWallet();
 					}
 						
 					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
