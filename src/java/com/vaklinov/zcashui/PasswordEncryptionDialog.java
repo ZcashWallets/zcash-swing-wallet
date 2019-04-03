@@ -33,6 +33,7 @@ import java.awt.Font;
 
 import javax.swing.JOptionPane;
 
+import com.cabecinha84.zcashui.ZcashJCheckBox;
 import com.cabecinha84.zcashui.ZcashJFrame;
 import com.cabecinha84.zcashui.ZcashJLabel;
 import com.cabecinha84.zcashui.ZcashJPasswordField;
@@ -48,6 +49,8 @@ public class PasswordEncryptionDialog
 
 	private LanguageUtil langUtil;
 	
+	private ZcashJCheckBox  acceptExperimentalFeatures = null;
+	
 	public PasswordEncryptionDialog(ZcashJFrame parent)
 	{
 		super(parent);
@@ -56,14 +59,17 @@ public class PasswordEncryptionDialog
 		
 		ZcashJLabel confLabel = new ZcashJLabel(langUtil.getString("dialog.password.encryption.confirmation.label.text"));
 		this.freeSlotPanel.add(confLabel);
-		this.freeSlotPanel.add(passwordConfirmationField = new ZcashJPasswordField(30));
+		this.freeSlotPanel.add(passwordConfirmationField = new ZcashJPasswordField(50));
 		this.passwordLabel.setPreferredSize(confLabel.getPreferredSize());
 		
 		ZcashJLabel dividerLabel = new ZcashJLabel("   ");
 		dividerLabel.setFont(new Font("Helvetica", Font.PLAIN, 8));
 		this.freeSlotPanel2.add(dividerLabel);
 		
-		this.setSize(460, 270);
+		acceptExperimentalFeatures = new ZcashJCheckBox(langUtil.getString("encryption.accept.experimental"));
+		this.freeSlotPanel3.add(acceptExperimentalFeatures);
+		
+		this.setSize(850, 270);
 		this.validate();
 		this.repaint();
 	}
@@ -71,6 +77,16 @@ public class PasswordEncryptionDialog
 	
 	protected void processOK()
 	{
+		boolean acceptExperimental = this.acceptExperimentalFeatures.isSelected();
+		if(!acceptExperimental) {
+			JOptionPane.showMessageDialog(
+				this.getParent(), 
+				langUtil.getString("encryption.accept.experimental.message"),
+				langUtil.getString("encryption.accept.experimental.title")	,
+				JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		String password     = this.passwordField.getText();
 		String confirmation = this.passwordConfirmationField.getText(); 
 		
