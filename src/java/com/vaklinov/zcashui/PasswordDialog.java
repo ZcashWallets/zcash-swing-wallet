@@ -63,6 +63,7 @@ public class PasswordDialog extends ZcashJDialog
 	
 	protected ZcashJPanel freeSlotPanel;
 	protected ZcashJPanel freeSlotPanel2;
+	protected ZcashJPanel freeSlotPanel3;
 	private LanguageUtil langUtil;
 	
 	public PasswordDialog(ZcashJFrame parent)
@@ -88,7 +89,7 @@ public class PasswordDialog extends ZcashJDialog
 		
 		tempPanel = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		tempPanel.add(passwordLabel = new ZcashJLabel(langUtil.getString("dialog.password.temp.panel.password.label.text")));
-		tempPanel.add(passwordField = new ZcashJPasswordField(30));
+		tempPanel.add(passwordField = new ZcashJPasswordField(50));
 		controlsPanel.add(tempPanel);
 		
 		dividerLabel = new ZcashJLabel("   ");
@@ -100,6 +101,9 @@ public class PasswordDialog extends ZcashJDialog
 		
 		this.freeSlotPanel2 = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		controlsPanel.add(this.freeSlotPanel2);
+		
+		this.freeSlotPanel3 = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		controlsPanel.add(this.freeSlotPanel3);
 
 		tempPanel = new ZcashJPanel(new BorderLayout(0, 0));
 		tempPanel.add(this.lowerLabel = new ZcashJLabel(langUtil.getString("dialog.password.temp.panel.lower.label.text")), BorderLayout.CENTER);

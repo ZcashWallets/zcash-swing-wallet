@@ -261,17 +261,34 @@ public class AddressesPanel
 			final boolean bEncryptedWallet = this.clientCaller.isWalletEncrypted();
 			if (bEncryptedWallet && isZAddress)
 			{
-				this.setCursor(oldCursor);
-				PasswordDialog pd = new PasswordDialog((ZcashJFrame)(this.getRootPane().getParent()));
-				pd.setVisible(true);
+				boolean passwordOk = false;
+				int retrys = 0;
+				while(!passwordOk && retrys<3) {
+					++retrys;
+					PasswordDialog pd = new PasswordDialog((ZcashJFrame)(AddressesPanel.this.getRootPane().getParent()));
+					pd.setVisible(true);
 
-				if (!pd.isOKPressed())
-				{
-					return;
+					if (!pd.isOKPressed())
+					{
+						return;
+					}
+					try {
+						this.clientCaller.unlockWallet(pd.getPassword());
+						passwordOk = true;
+					}
+					catch (Exception e) {
+						Log.error("Error unlocking wallet:"+e.getMessage());
+						JOptionPane.showMessageDialog(
+								this, 
+								langUtil.getString("encryption.error.unlocking.message", e.getMessage()),
+								langUtil.getString("encryption.error.unlocking.title"),
+								JOptionPane.ERROR_MESSAGE);
+					}
 				}
-
-				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				this.clientCaller.unlockWallet(pd.getPassword());
+				if(!passwordOk) {
+					Log.info("Failed to enter correct password for third time, wallet will close.");
+					System.exit(1);
+				}
 			}
 
 			// zcashd has a bug that sometimes supposedly newly returned addresses have actually
@@ -297,7 +314,7 @@ public class AddressesPanel
 			// Lock the wallet again
 			if (bEncryptedWallet && isZAddress)
 			{
-				this.clientCaller.lockWallet();
+				//this.clientCaller.lockWallet();
 			}
 
 			String backupMessage = "";

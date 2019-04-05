@@ -44,11 +44,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.management.ManagementFactory;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -68,9 +66,8 @@ import com.cabecinha84.zcashui.ZcashJMenu;
 import com.cabecinha84.zcashui.ZcashJMenuBar;
 import com.cabecinha84.zcashui.ZcashJMenuItem;
 import com.cabecinha84.zcashui.ZcashJTabbedPane;
-import com.cabecinha84.zcashui.ZcashYUIEditDialog;
 import com.cabecinha84.zcashui.ZcashXUI;
-
+import com.cabecinha84.zcashui.ZcashYUIEditDialog;
 import com.vaklinov.zcashui.OSUtil.OS_TYPE;
 import com.vaklinov.zcashui.ZCashClientCaller.NetworkAndBlockchainInfo;
 import com.vaklinov.zcashui.ZCashClientCaller.WalletCallException;
@@ -98,6 +95,7 @@ public class ZCashUI
     private ZcashJMenuItem menuItemAbout;
     private ZcashJMenuItem menuItemZcashXUI;
     private ZcashJMenuItem menuItemEncrypt;
+    private ZcashJMenuItem menuItemChangePassword;
     private ZcashJMenuItem menuItemBackup;
     private ZcashJMenuItem menuItemExportKeys;
     private ZcashJMenuItem menuItemImportKeys;
@@ -208,9 +206,12 @@ public class ZCashUI
         wallet.setMnemonic(KeyEvent.VK_W);
         wallet.add(menuItemBackup = new ZcashJMenuItem(langUtil.getString("menu.label.backup"), KeyEvent.VK_B));
         menuItemBackup.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, accelaratorKeyMask));
-        // Encryption menu item is hidden since encryption is not possible
-        //wallet.add(menuItemEncrypt = new ZcashJMenuItem(langUtil.getString("menu.label.encrypt"), KeyEvent.VK_E));
-        //menuItemEncrypt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, accelaratorKeyMask));
+        wallet.add(menuItemEncrypt = new ZcashJMenuItem(langUtil.getString("menu.label.encrypt"), KeyEvent.VK_E));
+        menuItemEncrypt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, accelaratorKeyMask));
+        wallet.add(menuItemChangePassword = new
+				ZcashJMenuItem(langUtil.getString("menu.label.changepassword"), KeyEvent.VK_J));
+		menuItemChangePassword.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J,
+				accelaratorKeyMask));
         wallet.add(menuItemExportKeys = new ZcashJMenuItem(langUtil.getString("menu.label.export.private.keys"), KeyEvent.VK_K));
         menuItemExportKeys.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, accelaratorKeyMask));
         wallet.add(menuItemImportKeys = new ZcashJMenuItem(langUtil.getString("menu.label.import.private.keys"), KeyEvent.VK_I));
@@ -349,7 +350,6 @@ public class ZCashUI
             }
         );
         
-        /** Encrypt menu item is not initialized
         menuItemEncrypt.addActionListener(
             new ActionListener()
             {
@@ -360,8 +360,12 @@ public class ZCashUI
                 }
             }
         );
-        */
 
+        menuItemChangePassword.addActionListener( new ActionListener() {  
+			 @Override 
+			 public void actionPerformed(ActionEvent e) {
+		            ZCashUI.this.walletOps.changeWalletPassword(); } } );
+        
         menuItemExportKeys.addActionListener(   
             new ActionListener()
             {
@@ -611,6 +615,74 @@ public class ZCashUI
 
         System.exit(0);
     }
+    
+    public void stopTimers() {
+		Log.info("stopTimers ...");
+
+		this.dashboard.stopThreadsAndTimers();
+		this.transactionDetailsPanel.stopThreadsAndTimers();
+		this.addresses.stopThreadsAndTimers();
+		this.sendPanel.stopThreadsAndTimers();
+		this.messagingPanel.stopThreadsAndTimers();
+
+	}
+    
+    public void restartDaemon(boolean reindex) {
+		Log.info("restartDaemon ...");
+
+		this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		try {
+			this.dashboard.stopThreadsAndTimers();
+			this.transactionDetailsPanel.stopThreadsAndTimers();
+			this.addresses.stopThreadsAndTimers();
+			this.sendPanel.stopThreadsAndTimers();
+			this.messagingPanel.stopThreadsAndTimers();
+			Thread.sleep(ZCashUI.THREAD_WAIT_1_SECOND);
+			
+			this.clientCaller.stopDaemon();
+			ZCashInstallationObserver initialInstallationObserver;
+			DaemonInfo zcashdInfo;
+			for (int i = 0; i < 10; ++i) {
+				Log.info("Check if Daemon is stopped");
+				initialInstallationObserver = new ZCashInstallationObserver(OSUtil.getProgramDirectory());
+				zcashdInfo = initialInstallationObserver.getDaemonInfo();
+				initialInstallationObserver = null;
+				if (zcashdInfo.status != DAEMON_STATUS.RUNNING) {
+					Log.info("Daemon stopped.");
+					break;
+				}
+				Thread.sleep(ZCashUI.THREAD_WAIT_1_SECOND);
+			}
+			this.clientCaller.startDaemon(reindex);
+			for (int i = 0; i < 10; ++i) {
+				Log.info("Check if Daemon is running");
+				initialInstallationObserver = new ZCashInstallationObserver(OSUtil.getProgramDirectory());
+				zcashdInfo = initialInstallationObserver.getDaemonInfo();
+				initialInstallationObserver = null;
+				if (zcashdInfo.status == DAEMON_STATUS.RUNNING) {
+					Log.info("Daemon running.");
+					break;
+				}
+				Thread.sleep(ZCashUI.THREAD_WAIT_1_SECOND);
+			}
+			for (int i = 0; i < 30; ++i) {
+				Log.info("Checking if Daemon is ready for gui wallet.");
+				try {
+					clientCaller.getNetworkAndBlockchainInfo();
+					Log.info("Daemon is ready.");
+				}
+				catch(Exception e) {
+					Log.info("Daemon not ready.");
+					Thread.sleep(ZCashUI.THREAD_WAIT_1_SECOND);
+				}
+			}
+			Log.info("restartDaemon finished ...");
+		}
+		catch (Exception e) {
+			Log.error("Error on restartDaemon: "+e.getMessage());
+		}
+		
+	}
 
     public static void main(String argv[])
         throws IOException

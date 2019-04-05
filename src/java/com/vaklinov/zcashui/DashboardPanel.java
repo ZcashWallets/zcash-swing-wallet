@@ -57,6 +57,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
@@ -258,6 +259,44 @@ public class DashboardPanel
 		installationStatusPanel.add(networkAndBlockchainPanel, BorderLayout.EAST);		
 		
 		dashboard.add(installationStatusPanel, BorderLayout.SOUTH);
+		
+		if (this.walletIsEncrypted == null) {
+			this.walletIsEncrypted = this.clientCaller
+					.isWalletEncrypted();
+
+			if(this.walletIsEncrypted) {
+				boolean passwordOk = false;
+				int retrys = 0;
+				while(!passwordOk && retrys<3) {
+					++retrys;
+					PasswordDialog pd = new PasswordDialog(this.parentFrame);
+					pd.setVisible(true);
+
+					if (!pd.isOKPressed())
+					{
+						Log.info("User pressed x or cancel on wallet startup - Wallet will be closed.");
+						System.exit(1);
+					}
+					try {
+						this.clientCaller.unlockWallet(pd.getPassword());
+						passwordOk = true;
+					}
+					catch (Exception e) {
+						Log.error("Error unlocking wallet:"+e.getMessage());
+						JOptionPane.showMessageDialog(
+								this, 
+								langUtil.getString("encryption.error.unlocking.message", e.getMessage()),
+								langUtil.getString("encryption.error.unlocking.title"),
+								JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				if(!passwordOk) {
+					Log.info("Failed to enter correct password for third time, wallet will close.");
+					System.exit(1);
+				}
+
+			}
+		}
 
 		// Thread and timer to update the daemon status
 		this.daemonInfoGatheringThread = new DataGatheringThread<DaemonInfo>(
@@ -305,13 +344,6 @@ public class DashboardPanel
 					long start = System.currentTimeMillis();
 					WalletBalance balance = DashboardPanel.this.clientCaller.getWalletInfo();
 					long end = System.currentTimeMillis();
-					
-					// TODO: move this call to a dedicated one-off gathering thread - this is the wrong place
-					// it works but a better design is needed.
-					if (DashboardPanel.this.walletIsEncrypted == null)
-					{
-					    DashboardPanel.this.walletIsEncrypted = DashboardPanel.this.clientCaller.isWalletEncrypted();
-					}
 					
 					Log.info("Gathering of dashboard wallet balance data done in " + (end - start) + "ms." );
 					

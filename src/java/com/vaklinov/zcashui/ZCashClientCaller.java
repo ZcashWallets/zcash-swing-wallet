@@ -110,7 +110,7 @@ public class ZCashClientCaller
 		new HashMap<String, String>());
 	private long lastTransactionConfirmationsAccess = System.currentTimeMillis();
 
-	
+	private static Boolean walletIsEncrypted = null;
 
 	public ZCashClientCaller(String installDir)
 		throws IOException
@@ -954,7 +954,7 @@ public class ZCashClientCaller
 		return info;
 	}
 
-
+	/*
 	public synchronized void lockWallet()
 		throws WalletCallException, IOException, InterruptedException
 	{
@@ -966,15 +966,15 @@ public class ZCashClientCaller
 			throw new WalletCallException("Unexpected response from wallet: " + response);
 		}
 	}
+	*/
 
 
-	// Unlocks the wallet for 5 minutes - meant to be followed shortly by lock!
-	// TODO: tests with a password containing spaces
+	// Unlocks the wallet for 3 years!
 	public synchronized void unlockWallet(String password)
 		throws WalletCallException, IOException, InterruptedException
 	{
 		String response = this.executeCommandAndGetSingleStringResponse(
-			"walletpassphrase", wrapStringParameter(password), "300");
+			"walletpassphrase", wrapStringParameter(password), "100000000");
 
 		// Response is expected to be empty
 		if (response.trim().length() > 0)
@@ -990,53 +990,56 @@ public class ZCashClientCaller
 	public synchronized boolean isWalletEncrypted()
    		throws WalletCallException, IOException, InterruptedException
     {
-		String[] params = new String[] { this.zcashcli.getCanonicalPath(), "walletlock" };
-		CommandExecutor caller = new CommandExecutor(params);
-    	String strResult = caller.execute();
+		if (ZCashClientCaller.walletIsEncrypted == null) {
+			String[] params = new String[] { this.zcashcli.getCanonicalPath(), "walletlock" };
+			CommandExecutor caller = new CommandExecutor(params);
+	    	String strResult = caller.execute();
 
-    	 if (strResult.trim().length() <= 0)
-    	 {
-    		 // If it could be locked with no result - obviously encrypted
-    		 return true;
-    	 } else if (strResult.trim().toLowerCase(Locale.ROOT).startsWith("error:"))
-    	 {
-    		 // Expecting an error of an unencrypted wallet
-    		 String jsonPart = strResult.substring(strResult.indexOf("{"));
-   			 JsonValue response = null;
-   			 try
-   			 {
-   			   	response = Json.parse(jsonPart);
-   		 	 } catch (ParseException pe)
-   			 {
-   			   	 throw new WalletCallException(jsonPart + "\n" + pe.getMessage() + "\n", pe);
-   			 }
+	    	 if (strResult.trim().length() <= 0)
+	    	 {
+	    		 // If it could be locked with no result - obviously encrypted
+	    		 ZCashClientCaller.walletIsEncrypted = true;
+	    	 } else if (strResult.trim().toLowerCase(Locale.ROOT).startsWith("error:"))
+	    	 {
+	    		 // Expecting an error of an unencrypted wallet
+	    		 String jsonPart = strResult.substring(strResult.indexOf("{"));
+	   			 JsonValue response = null;
+	   			 try
+	   			 {
+	   			   	response = Json.parse(jsonPart);
+	   		 	 } catch (ParseException pe)
+	   			 {
+	   			   	 throw new WalletCallException(jsonPart + "\n" + pe.getMessage() + "\n", pe);
+	   			 }
 
-   			 JsonObject respObject = response.asObject();
-   			 if ((respObject.getDouble("code", -1) == -15) &&
-   				 (respObject.getString("message", "ERR").indexOf("unencrypted wallet") != -1))
-   			 {
-   				 // Obviously unencrypted
-   				 return false;
-   			 } else
-   			 {
-   	    		 throw new WalletCallException("Unexpected response from wallet: " + strResult);
-   			 }
-    	 } else if (strResult.trim().toLowerCase(Locale.ROOT).startsWith("error code:"))
-    	 {
-   			 JsonObject respObject = Util.getJsonErrorMessage(strResult);
-   			 if ((respObject.getDouble("code", -1) == -15) &&
-   				 (respObject.getString("message", "ERR").indexOf("unencrypted wallet") != -1))
-   			 {
-   				 // Obviously unencrypted
-   				 return false;
-   			 } else
-   			 {
-   	    		 throw new WalletCallException("Unexpected response from wallet: " + strResult);
-   			 }
-    	 } else
-    	 {
-    		 throw new WalletCallException("Unexpected response from wallet: " + strResult);
-    	 }
+	   			 JsonObject respObject = response.asObject();
+	   			 if ((respObject.getDouble("code", -1) == -15) &&
+	   				 (respObject.getString("message", "ERR").indexOf("unencrypted wallet") != -1))
+	   			 {
+	   				 // Obviously unencrupted
+	   				 ZCashClientCaller.walletIsEncrypted = false;
+	   			 } else
+	   			 {
+	   	    		 throw new WalletCallException("Unexpected response from wallet: " + strResult);
+	   			 }
+	    	 } else if (strResult.trim().toLowerCase(Locale.ROOT).startsWith("error code:"))
+	    	 {
+	   			 JsonObject respObject = Util.getJsonErrorMessage(strResult);
+	   			 if ((respObject.getDouble("code", -1) == -15) &&
+	   				 (respObject.getString("message", "ERR").indexOf("unencrypted wallet") != -1))
+	   			 {
+	   				 // Obviously unencrupted
+	   				 ZCashClientCaller.walletIsEncrypted = false;
+	   			 } else
+	   			 {
+	   	    		 throw new WalletCallException("Unexpected response from wallet: " + strResult);
+	   			 }
+	    	 } else
+	    	 {
+	    		 throw new WalletCallException("Unexpected response from wallet: " + strResult);
+	    	 }
+		}
+		return ZCashClientCaller.walletIsEncrypted;
     }
 
 
@@ -1061,6 +1064,14 @@ public class ZCashClientCaller
 		// If no exception - obviously successful
 	}
 	
+	public synchronized void passPhraseChangeWallet(String oldPassword, String newPassword)
+			throws WalletCallException, IOException, InterruptedException
+		{
+			String response = this.executeCommandAndGetSingleStringResponse(
+				"walletpassphrasechange", wrapStringParameter(oldPassword), wrapStringParameter(newPassword));
+			Log.info("Result of encryption password change is: \n" + response);
+			// If no exception - obviously successful
+		}
 	
 	public synchronized String backupWallet(String fileName)
 		throws WalletCallException, IOException, InterruptedException
