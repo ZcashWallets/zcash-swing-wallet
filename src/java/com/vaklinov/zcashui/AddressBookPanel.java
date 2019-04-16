@@ -3,6 +3,7 @@
 package com.vaklinov.zcashui;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -26,6 +27,8 @@ import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -38,12 +41,14 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import com.cabecinha84.zcashui.ZcashJButton;
+import com.cabecinha84.zcashui.ZcashJLabel;
 import com.cabecinha84.zcashui.ZcashJMenuItem;
 import com.cabecinha84.zcashui.ZcashJPanel;
 import com.cabecinha84.zcashui.ZcashJPopupMenu;
 import com.cabecinha84.zcashui.ZcashJScrollPane;
 import com.cabecinha84.zcashui.ZcashJTabbedPane;
 import com.cabecinha84.zcashui.ZcashJTable;
+import com.cabecinha84.zcashui.ZcashJTextField;
 
 public class AddressBookPanel extends ZcashJPanel {
     
@@ -200,35 +205,34 @@ public class AddressBookPanel extends ZcashJPanel {
     }
     
     private class NewContactActionListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            String name = (String) JOptionPane.showInputDialog(AddressBookPanel.this,
-                    langUtil.getString("panel.address.book.option.pane.new.contact.msg"),
+    	public void actionPerformed(ActionEvent e) {
+        	ZcashJPanel myPanel = new ZcashJPanel();
+        	myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+        	ZcashJTextField name;
+        	ZcashJTextField address;
+    		addFormField(myPanel, langUtil.getString("panel.address.book.option.pane.new.contact.msg"),  name = new ZcashJTextField(50));
+    		addFormField(myPanel, langUtil.getString("panel.address.book.option.pane.new.contact.address"),  address = new ZcashJTextField(50));
+    		            
+            int result = JOptionPane.showConfirmDialog(AddressBookPanel.this,
+            		myPanel,
                     langUtil.getString("panel.address.book.option.pane.new.contact.title"),
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    null,
-                    "");
-            if (name == null || "".equals(name))
+                    JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.CANCEL_OPTION) {
+            	return;
+            }
+            if (name == null || "".equals(name.getText()) || address == null || "".equals(address.getText()))
                 return; // cancelled
 
             // TODO: check for dupes
-            names.add(name);
+            names.add(name.getText());
             
-            String address = (String) JOptionPane.showInputDialog(AddressBookPanel.this,
-                    langUtil.getString("panel.address.book.option.pane.new.contact.address", name),
-                    langUtil.getString("panel.address.book.option.pane.new.contact.address.title"),
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    null,
-                    "");
-            if (address == null || "".equals(address))
-                return; // cancelled
-            entries.add(new AddressBookEntry(name,address));
+            
+            entries.add(new AddressBookEntry(name.getText(),address.getText()));
             
             // Add the address also to the label storage
             try
             {
-            	AddressBookPanel.this.labelStorage.setLabel(address, name);
+            	AddressBookPanel.this.labelStorage.setLabel(address.getText(), name.getText());
             } catch (IOException ioe)
             {
             	Log.error("Saving labels from within address book failed!", ioe);
@@ -316,6 +320,18 @@ public class AddressBookPanel extends ZcashJPanel {
         }
         
     }
+    
+    private void addFormField(ZcashJPanel detailsPanel, String name, JComponent field)
+	{
+		ZcashJPanel tempPanel = new ZcashJPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+		ZcashJLabel tempLabel = new ZcashJLabel(name, JLabel.RIGHT);
+		// TODO: hard sizing of labels may not scale!
+		final int width = new ZcashJLabel("Sender identification T address:").getPreferredSize().width + 10;
+		tempLabel.setPreferredSize(new Dimension(width, tempLabel.getPreferredSize().height));
+		tempPanel.add(tempLabel);
+		tempPanel.add(field);
+		detailsPanel.add(tempPanel);
+	}
 
     private class AddressBookTableModel extends AbstractTableModel {
 
