@@ -662,7 +662,7 @@ public class DashboardPanel
 		}
 		
 		// Format double numbers - else sometimes we get exponential notation 1E-4 ZEC
-		DecimalFormat df = new DecimalFormat("########0.00######");
+		DecimalFormat df = new DecimalFormat("###,###,##0.00######");
 		
 		String transparentBalance = df.format(balance.transparentBalance);
 		String privateBalance = df.format(balance.privateBalance);
