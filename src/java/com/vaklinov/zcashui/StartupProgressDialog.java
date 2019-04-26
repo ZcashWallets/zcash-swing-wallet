@@ -80,7 +80,7 @@ public class StartupProgressDialog extends ZcashJFrame {
         
         // special handling of Windows/macOS app launch
     	OS_TYPE os = OSUtil.getOSType();
-        if ((os == OS_TYPE.WINDOWS) || (os == OS_TYPE.MAC_OS)) 
+        if ((os == OS_TYPE.WINDOWS) || (os == OS_TYPE.MAC_OS) || (os == OS_TYPE.LINUX)) 
         {
             ProvingKeyFetcher keyFetcher = new ProvingKeyFetcher();
             keyFetcher.fetchIfMissing(this);

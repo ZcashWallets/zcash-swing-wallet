@@ -66,6 +66,10 @@ public class ProvingKeyFetcher {
         {
         	File userHome = new File(System.getProperty("user.home"));
         	zCashParams = new File(userHome, "Library/Application Support/ZcashParams");
+        } else if (ost == OS_TYPE.LINUX)
+        {
+        	File userHome = new File(System.getProperty("user.home"));
+        	zCashParams = new File(userHome, ".zcash-params");
         }
         
         zCashParams = zCashParams.getCanonicalFile();
