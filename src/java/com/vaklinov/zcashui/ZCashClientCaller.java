@@ -146,27 +146,42 @@ public class ZCashClientCaller
 	}
 
 	
-	public synchronized Process startDaemon(boolean reindex) 
+	/**
+	 * Reindex have more priority over rescan, only one should be true if you need them
+	 */
+	public synchronized Process startDaemon(boolean reindex, boolean rescan) 
 		throws IOException, InterruptedException 
 	{
 		String exportDir = OSUtil.getUserHomeDirectory().getCanonicalPath();
 		if (reindex == true) {
-	  	  	CommandExecutor starter = new CommandExecutor(
-	 	       new String[] 
-				{
-	  	      		zcashd.getCanonicalPath(), 
-	        		"-exportdir=" + wrapStringParameter(exportDir),
+		    CommandExecutor starter = new CommandExecutor(
+		        new String[] 
+		        {
+		        	zcashd.getCanonicalPath(), 
+		        	"-exportdir=" + wrapStringParameter(exportDir),
 					"-reindex"
-	       	});
-
- 	  		return starter.startChildProcess();
-		} else {
+		        });
+		    
+		    return starter.startChildProcess();
+		} 
+		else if (rescan == true) {
+		    CommandExecutor starter = new CommandExecutor(
+		        new String[] 
+		        {
+		        	zcashd.getCanonicalPath(), 
+		        	"-exportdir=" + wrapStringParameter(exportDir),
+					"-rescan"
+		        });
+		    
+		    return starter.startChildProcess();
+		}
+		else {
 			CommandExecutor starter = new CommandExecutor(
-	        	new String[] 
-	        	{
-	        		zcashd.getCanonicalPath(), 
-	        		"-exportdir=" + wrapStringParameter(exportDir)
-	    	});
+	        new String[] 
+	        {
+	        	zcashd.getCanonicalPath(), 
+	        	"-exportdir=" + wrapStringParameter(exportDir)
+	        });
 	    
 	    return starter.startChildProcess();
 		}

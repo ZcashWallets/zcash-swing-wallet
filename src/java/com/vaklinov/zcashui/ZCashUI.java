@@ -97,6 +97,8 @@ public class ZCashUI
     private ZcashJMenuItem menuItemEncrypt;
     private ZcashJMenuItem menuItemChangePassword;
     private ZcashJMenuItem menuItemBackup;
+    private ZcashJMenuItem menuItemReindex;
+	private ZcashJMenuItem menuItemRescan;
     private ZcashJMenuItem menuItemExportKeys;
     private ZcashJMenuItem menuItemImportKeys;
     private ZcashJMenuItem menuItemShowPrivateKey;
@@ -220,6 +222,10 @@ public class ZCashUI
         menuItemShowPrivateKey.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, accelaratorKeyMask));
         wallet.add(menuItemImportOnePrivateKey = new ZcashJMenuItem(langUtil.getString("menu.label.import.one.private.key"), KeyEvent.VK_N));
         menuItemImportOnePrivateKey.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, accelaratorKeyMask));
+		wallet.add(menuItemReindex = new ZcashJMenuItem(langUtil.getString("menu.label.reindex"), KeyEvent.VK_1));
+		menuItemReindex.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, accelaratorKeyMask));
+		wallet.add(menuItemRescan = new ZcashJMenuItem(langUtil.getString("menu.label.rescan"), KeyEvent.VK_2));
+		menuItemRescan.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, accelaratorKeyMask));
         //wallet.add(menuItemExportToArizen = new ZcashJMenuItem(langUtil.getString("menu.label.export.to.arizen"), KeyEvent.VK_A));
         //menuItemExportToArizen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, accelaratorKeyMask));
         mb.add(wallet);
@@ -409,6 +415,20 @@ public class ZCashUI
                }
            }
        );
+       
+       menuItemReindex.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ZCashUI.this.walletOps.reindexWallet();
+			}
+		});
+
+		menuItemRescan.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ZCashUI.this.walletOps.rescanWallet();
+			}
+		});
        
        menuItemOwnIdentity.addActionListener(   
                new ActionListener()
@@ -627,7 +647,12 @@ public class ZCashUI
 
 	}
     
-    public void restartDaemon(boolean reindex) {
+    /**
+	 * if both are true only reindex will be executed.
+	 * @param reindex
+	 * @param rescan
+	 */
+    public void restartDaemon(boolean reindex, boolean rescan) {
 		Log.info("restartDaemon ...");
 
 		this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -653,7 +678,7 @@ public class ZCashUI
 				}
 				Thread.sleep(ZCashUI.THREAD_WAIT_1_SECOND);
 			}
-			this.clientCaller.startDaemon(reindex);
+			this.clientCaller.startDaemon(reindex, rescan);
 			for (int i = 0; i < 10; ++i) {
 				Log.info("Check if Daemon is running");
 				initialInstallationObserver = new ZCashInstallationObserver(OSUtil.getProgramDirectory());
@@ -844,7 +869,7 @@ public class ZCashUI
 							initialClientCaller = new ZCashClientCaller(OSUtil.getProgramDirectory());
 						}
 						initialClientCaller.stopDaemon();
-						initialClientCaller.startDaemon(true);
+						initialClientCaller.startDaemon(true, false);
 						JOptionPane.showMessageDialog(null,
 								LanguageUtil.instance().getString("wallet.reindex.restart.message"),
 								LanguageUtil.instance().getString("wallet.reindex.restart.title"),

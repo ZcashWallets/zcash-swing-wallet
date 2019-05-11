@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,7 +63,8 @@ import com.cabecinha84.zcashui.ZcashJFrame;
 import com.cabecinha84.zcashui.ZcashJLabel;
 import com.cabecinha84.zcashui.ZcashJProgressBar;
 import com.cabecinha84.zcashui.ZcashJTabbedPane;
-
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 import com.vaklinov.zcashui.ZCashClientCaller.WalletCallException;
 import com.vaklinov.zcashui.arizen.models.Address;
 import com.vaklinov.zcashui.arizen.repo.ArizenWallet;
@@ -74,6 +76,10 @@ import com.vaklinov.zcashui.arizen.repo.WalletRepo;
  */
 public class WalletOperations
 {	
+	
+	private static final int POLL_PERIOD = 5000;
+    private static final int STARTUP_ERROR_CODE = -28;
+    
 	private ZCashUI parent;
 	private ZcashJTabbedPane tabs;
 	private DashboardPanel dashboard;
@@ -143,7 +149,7 @@ public class WalletOperations
 				this.parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				this.parent.stopTimers();
 				if(!this.checkExperimentalFeaturesOn()) {
-					this.parent.restartDaemon(false);
+					this.parent.restartDaemon(false, false);
 				}
 				this.clientCaller.passPhraseChangeWallet(pd.getPassword(), pd.getNewPassword());
 
@@ -205,7 +211,7 @@ public class WalletOperations
 				
 				this.parent.stopTimers();
 				if(!this.checkExperimentalFeaturesOn()) {
-					this.parent.restartDaemon(false);
+					this.parent.restartDaemon(false, false);
 				}
 				
 				this.clientCaller.encryptWallet(pd.getPassword());
@@ -424,6 +430,77 @@ public class WalletOperations
 		}
 	}
 
+	public void reindexWallet() {
+		Object[] options = 
+        	{ 
+        		langUtil.getString("send.cash.panel.option.pane.confirm.operation.button.yes"),
+        		langUtil.getString("send.cash.panel.option.pane.confirm.operation.button.no")
+        	};
+		int option;
+		option = JOptionPane.showOptionDialog(
+				this.parent, 
+				langUtil.getString("wallet.operations.dialog.reindex.message"),
+                langUtil.getString("wallet.operations.dialog.reindex.title"),
+			    JOptionPane.DEFAULT_OPTION, 
+			    JOptionPane.QUESTION_MESSAGE,
+			    null, 
+			    options, 
+			    options[1]);
+
+		if (option == 0)
+	    {
+			this.parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			parent.restartDaemon(true, false);
+			try {
+				restartUI();
+			} catch (IOException | InterruptedException | WalletCallException e1) {
+				Log.error("Error restarting the UI, the wallet will be closed. Error:"+e1.getMessage());
+				JOptionPane.showMessageDialog(null,
+						LanguageUtil.instance().getString("main.frame.option.pane.wallet.critical.error.2.text",
+								e1.getMessage()),
+						LanguageUtil.instance()
+								.getString("main.frame.option.pane.wallet.critical.error.2.title"),
+						JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+	    }
+	}
+
+	public void rescanWallet() {
+		Object[] options = 
+        	{ 
+        		langUtil.getString("send.cash.panel.option.pane.confirm.operation.button.yes"),
+        		langUtil.getString("send.cash.panel.option.pane.confirm.operation.button.no")
+        	};
+		int option;
+		option = JOptionPane.showOptionDialog(
+				this.parent, 
+				langUtil.getString("wallet.operations.dialog.rescan.message"),
+                langUtil.getString("wallet.operations.dialog.rescan.title"),
+			    JOptionPane.DEFAULT_OPTION, 
+			    JOptionPane.QUESTION_MESSAGE,
+			    null, 
+			    options, 
+			    options[1]);
+
+		if (option == 0)
+	    {
+			this.parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			parent.restartDaemon(false, true);
+			try {
+				restartAfterRescan();
+			} catch (IOException | InterruptedException | InvocationTargetException | WalletCallException e1) {
+				Log.error("Error restarting the UI, the wallet will be closed. Error:"+e1.getMessage());
+				JOptionPane.showMessageDialog(null,
+						LanguageUtil.instance().getString("main.frame.option.pane.wallet.critical.error.2.text",
+								e1.getMessage()),
+						LanguageUtil.instance()
+								.getString("main.frame.option.pane.wallet.critical.error.2.title"),
+						JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+	    }
+	}
 	
 	public void importWalletPrivateKeys()
 	{
@@ -858,5 +935,51 @@ public class WalletOperations
 	    }
 	    
 	    warningFlagFile.createNewFile();
+	}
+	
+	public void restartUI() throws IOException, InterruptedException, WalletCallException {
+		Log.info("Restarting the UI.");
+		ZCashUI z = new ZCashUI(null);
+		this.parent.setVisible(false);
+		this.parent.dispose();
+		this.parent = z;	
+		this.parent.repaint();
+		this.parent.setVisible(true);
+	}
+
+	public void restartAfterRescan() throws IOException, InterruptedException, WalletCallException, InvocationTargetException {
+		Log.info("Waiting for rescan complete.");
+	    while(true) {
+	        Thread.sleep(POLL_PERIOD);
+
+	        JsonObject info = null;
+
+	        try
+	        {
+	        	info = clientCaller.getDaemonRawRuntimeInfo();
+	        } catch (IOException e)
+	        {
+        		throw e;
+	        }
+
+	        JsonValue code = info.get("code");
+	        Log.debug("clientCaller:"+info.toString());
+	        if (code == null || (code.asInt() != STARTUP_ERROR_CODE))
+	            break;        
+	    }
+	    Log.info("Rescan complete.");
+
+	    JOptionPane.showMessageDialog(this.parent, 
+	    		langUtil.getString("wallet.operations.dialog.rescan.complete.message"), 
+	    		langUtil.getString("wallet.operations.dialog.rescan.complete.title"), 
+	    		JOptionPane.INFORMATION_MESSAGE);
+
+	    this.parent.setVisible(false);
+		this.parent.dispose();
+
+		ZCashUI z = new ZCashUI(null);
+		this.parent = z;	
+		this.parent.repaint();
+		this.parent.setVisible(true);
 	}
 }
