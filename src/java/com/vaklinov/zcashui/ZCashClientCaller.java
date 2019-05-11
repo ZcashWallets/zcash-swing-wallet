@@ -76,6 +76,7 @@ public class ZCashClientCaller
 	public static class NetworkAndBlockchainInfo
 	{
 		public int numConnections;
+		public int blockNumber;
 		public Date lastBlockDate;
 	}
 
@@ -965,6 +966,7 @@ public class ZCashClientCaller
 		String lastBlockHash = this.executeCommandAndGetSingleStringResponse("getblockhash", strBlockCount.trim());
 		JsonObject lastBlock = this.executeCommandAndGetJsonObject("getblock", wrapStringParameter(lastBlockHash.trim()));
 		info.lastBlockDate = new Date(Long.valueOf(lastBlock.getLong("time", -1) * 1000L));
+		info.blockNumber = Integer.valueOf(strBlockCount.trim());
 
 		return info;
 	}
