@@ -857,7 +857,7 @@ public class DashboardPanel
 						return exchangeData;
 					}
 				}, 
-				errorReporter, 120000, true);
+				errorReporter, 300000, true);
 			
 			this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 18));
 			this.recreateExchangeTable();
