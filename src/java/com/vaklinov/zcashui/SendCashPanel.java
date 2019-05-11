@@ -263,7 +263,7 @@ public class SendCashPanel
 				  String balance = lastAddressBalanceData[balanceAddressCombo.getSelectedIndex()][0];
 				  String fee = transactionFeeField.getText();
 				  String max = new DecimalFormat("########0.00######").format(Double.parseDouble(balance) - Double.parseDouble(fee));
-				  destinationAmountField.setText(max);
+				  destinationAmountField.setText(max.replace(",", "."));
 				} catch (Exception ex)
 				{
 					Log.error("Unexpected error: ", ex);
