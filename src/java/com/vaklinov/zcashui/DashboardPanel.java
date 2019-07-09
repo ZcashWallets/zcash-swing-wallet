@@ -164,6 +164,9 @@ public class DashboardPanel
 	private DataGatheringThread<WalletBalance> walletBalanceGatheringThread = null;
 	
 	private DataGatheringThread<String[][]> transactionGatheringThread = null;
+
+	private LatestTransactionsPanel latestTransactionsPanel = null;
+	
 	private LanguageUtil langUtil;
 	private String currency;
 
@@ -232,7 +235,7 @@ public class DashboardPanel
 		// List of transactions 
         tempPanel = new ZcashJPanel(new BorderLayout(0, 0));
         tempPanel.setBorder(BorderFactory.createEmptyBorder(0, 14, 8, 4));
-        tempPanel.add(new LatestTransactionsPanel(), BorderLayout.CENTER);
+        tempPanel.add(latestTransactionsPanel = new LatestTransactionsPanel(), BorderLayout.CENTER);
 		dashboard.add(tempPanel, BorderLayout.CENTER);
 
 		// Lower panel with installation status
@@ -381,6 +384,7 @@ public class DashboardPanel
 				{
 					long start = System.currentTimeMillis();
 					String[][] data = DashboardPanel.this.getTransactionsDataFromWallet();
+					DashboardPanel.this.latestTransactionsPanel.transactions = data;
 					long end = System.currentTimeMillis();
 					Log.info("Gathering of dashboard wallet transactions table data done in " + (end - start) + "ms." );
 					
@@ -567,7 +571,7 @@ public class DashboardPanel
 		}
 				
 		String text =langUtil.getString("panel.dashboard.network.blockchain.label",
-				percentage, info.lastBlockDate.toLocaleString(), info.numConnections );
+				percentage, info.lastBlockDate.toLocaleString(), info.numConnections, info.blockNumber);
 
 		this.networkAndBlockchainLabel.setText(text);
 		
@@ -857,7 +861,7 @@ public class DashboardPanel
 						return exchangeData;
 					}
 				}, 
-				errorReporter, 120000, true);
+				errorReporter, 300000, true);
 			
 			this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 18));
 			this.recreateExchangeTable();
@@ -1062,7 +1066,6 @@ public class DashboardPanel
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-					LatestTransactionsPanel.this.transactions = transactionGatheringThread.getLastData();
 					if (LatestTransactionsPanel.this.transactions != null)
 					{
 						transactionList.updateTransactions(LatestTransactionsPanel.this.transactions);
@@ -1070,8 +1073,8 @@ public class DashboardPanel
 				}
 			};
 			
-			Timer latestTransactionsTimer =  new Timer(8000, al);
-			latestTransactionsTimer.setInitialDelay(8000);
+			Timer latestTransactionsTimer =  new Timer(20000, al);
+			latestTransactionsTimer.setInitialDelay(20000);
 			latestTransactionsTimer.start();
 						
 			this.setLayout(new GridLayout(1, 1));

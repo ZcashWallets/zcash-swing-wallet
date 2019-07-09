@@ -76,6 +76,7 @@ public class ZCashClientCaller
 	public static class NetworkAndBlockchainInfo
 	{
 		public int numConnections;
+		public int blockNumber;
 		public Date lastBlockDate;
 	}
 
@@ -146,27 +147,42 @@ public class ZCashClientCaller
 	}
 
 	
-	public synchronized Process startDaemon(boolean reindex) 
+	/**
+	 * Reindex have more priority over rescan, only one should be true if you need them
+	 */
+	public synchronized Process startDaemon(boolean reindex, boolean rescan) 
 		throws IOException, InterruptedException 
 	{
 		String exportDir = OSUtil.getUserHomeDirectory().getCanonicalPath();
 		if (reindex == true) {
-	  	  	CommandExecutor starter = new CommandExecutor(
-	 	       new String[] 
-				{
-	  	      		zcashd.getCanonicalPath(), 
-	        		"-exportdir=" + wrapStringParameter(exportDir),
+		    CommandExecutor starter = new CommandExecutor(
+		        new String[] 
+		        {
+		        	zcashd.getCanonicalPath(), 
+		        	"-exportdir=" + wrapStringParameter(exportDir),
 					"-reindex"
-	       	});
-
- 	  		return starter.startChildProcess();
-		} else {
+		        });
+		    
+		    return starter.startChildProcess();
+		} 
+		else if (rescan == true) {
+		    CommandExecutor starter = new CommandExecutor(
+		        new String[] 
+		        {
+		        	zcashd.getCanonicalPath(), 
+		        	"-exportdir=" + wrapStringParameter(exportDir),
+					"-rescan"
+		        });
+		    
+		    return starter.startChildProcess();
+		}
+		else {
 			CommandExecutor starter = new CommandExecutor(
-	        	new String[] 
-	        	{
-	        		zcashd.getCanonicalPath(), 
-	        		"-exportdir=" + wrapStringParameter(exportDir)
-	    	});
+	        new String[] 
+	        {
+	        	zcashd.getCanonicalPath(), 
+	        	"-exportdir=" + wrapStringParameter(exportDir)
+	        });
 	    
 	    return starter.startChildProcess();
 		}
@@ -950,6 +966,7 @@ public class ZCashClientCaller
 		String lastBlockHash = this.executeCommandAndGetSingleStringResponse("getblockhash", strBlockCount.trim());
 		JsonObject lastBlock = this.executeCommandAndGetJsonObject("getblock", wrapStringParameter(lastBlockHash.trim()));
 		info.lastBlockDate = new Date(Long.valueOf(lastBlock.getLong("time", -1) * 1000L));
+		info.blockNumber = Integer.valueOf(strBlockCount.trim());
 
 		return info;
 	}
