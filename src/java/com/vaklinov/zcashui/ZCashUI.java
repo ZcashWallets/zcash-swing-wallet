@@ -99,6 +99,7 @@ public class ZCashUI
     private ZcashJMenuItem menuItemBackup;
     private ZcashJMenuItem menuItemReindex;
 	private ZcashJMenuItem menuItemRescan;
+	private ZcashJMenuItem menuItemSproutToSapling;
     private ZcashJMenuItem menuItemExportKeys;
     private ZcashJMenuItem menuItemImportKeys;
     private ZcashJMenuItem menuItemShowPrivateKey;
@@ -188,7 +189,7 @@ public class ZCashUI
 
         this.walletOps = new WalletOperations(
             	this, tabs, dashboard, addresses, sendPanel, 
-            	installationObserver, clientCaller, errorReporter, backupTracker);        
+            	installationObserver, clientCaller, errorReporter, backupTracker, labelStorage);        
 
         // Build menu
         ZcashJMenuBar mb = new ZcashJMenuBar();
@@ -226,7 +227,9 @@ public class ZCashUI
 		menuItemReindex.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, accelaratorKeyMask));
 		wallet.add(menuItemRescan = new ZcashJMenuItem(langUtil.getString("menu.label.rescan"), KeyEvent.VK_2));
 		menuItemRescan.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, accelaratorKeyMask));
-        //wallet.add(menuItemExportToArizen = new ZcashJMenuItem(langUtil.getString("menu.label.export.to.arizen"), KeyEvent.VK_A));
+		wallet.add(menuItemSproutToSapling = new ZcashJMenuItem(langUtil.getString("menu.label.sprouttosapling"), KeyEvent.VK_3));
+		menuItemSproutToSapling.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, accelaratorKeyMask));
+		//wallet.add(menuItemExportToArizen = new ZcashJMenuItem(langUtil.getString("menu.label.export.to.arizen"), KeyEvent.VK_A));
         //menuItemExportToArizen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, accelaratorKeyMask));
         mb.add(wallet);
 
@@ -427,6 +430,13 @@ public class ZCashUI
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ZCashUI.this.walletOps.rescanWallet();
+			}
+		});
+		
+		menuItemSproutToSapling.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ZCashUI.this.walletOps.sproutToSaplingMigrationTool();
 			}
 		});
        
