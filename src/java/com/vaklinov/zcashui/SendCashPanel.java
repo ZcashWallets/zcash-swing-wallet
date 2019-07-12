@@ -260,10 +260,16 @@ public class SendCashPanel
 			{
 				try
 				{
-				  String balance = lastAddressBalanceData[balanceAddressCombo.getSelectedIndex()][0];
-				  String fee = transactionFeeField.getText();
-				  String max = new DecimalFormat("########0.00######",new DecimalFormatSymbols(Locale.US)).format(Double.parseDouble(balance) - Double.parseDouble(fee));
-				  destinationAmountField.setText(max);
+					if(-1 == balanceAddressCombo.getSelectedIndex()) {
+						return;
+					}
+					String balance = lastAddressBalanceData[balanceAddressCombo.getSelectedIndex()][0];
+					String fee = transactionFeeField.getText();
+					if("".equals(balance) || "".equals(fee)) {
+						return;
+					}
+					String max = new DecimalFormat("########0.00######",new DecimalFormatSymbols(Locale.US)).format(Double.parseDouble(balance) - Double.parseDouble(fee));
+					destinationAmountField.setText(max);
 				} catch (Exception ex)
 				{
 					Log.error("Unexpected error: ", ex);
