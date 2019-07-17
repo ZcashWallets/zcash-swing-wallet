@@ -3,8 +3,8 @@
 [Setup]
 AppId={{fxApplication}}
 AppName=ZECmate
-AppVersion=1.3.0
-AppVerName=ZECmate 1.3.0
+AppVersion=1.4.0
+AppVerName=ZECmate 1.4.0
 AppPublisher=Zel Technologies GmbH
 AppComments=ZECmate
 AppCopyright=Copyright (C) 2019
@@ -23,7 +23,7 @@ DefaultGroupName=Zel Technologies GmbH
 LicenseFile=
 ;WinXP or above
 MinVersion=0,5.1 
-OutputBaseFilename=ZECmate-1.3.0
+OutputBaseFilename=ZECmate-1.4.0
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=poweruser
@@ -33,7 +33,7 @@ UninstallDisplayName=ZECmate
 WizardImageStretch=No
 WizardSmallImageFile=ZECmate-setup-icon.bmp   
 ArchitecturesInstallIn64BitMode=x64
-VersionInfoVersion=1.3.0
+VersionInfoVersion=1.4.0
 
 
 [Languages]

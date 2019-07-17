@@ -77,6 +77,7 @@ public class ZCashClientCaller
 	{
 		public int numConnections;
 		public int blockNumber;
+		public String sproutToSaplingEnabled;
 		public Date lastBlockDate;
 	}
 
@@ -967,6 +968,10 @@ public class ZCashClientCaller
 		JsonObject lastBlock = this.executeCommandAndGetJsonObject("getblock", wrapStringParameter(lastBlockHash.trim()));
 		info.lastBlockDate = new Date(Long.valueOf(lastBlock.getLong("time", -1) * 1000L));
 		info.blockNumber = Integer.valueOf(strBlockCount.trim());
+		
+		JsonObject migrationInfo = getMigrationInfo();
+		String status = migrationInfo.get("enabled").toString().toUpperCase().replaceAll("[\n\r\"]", "");
+		info.sproutToSaplingEnabled = status;
 
 		return info;
 	}
@@ -1216,6 +1221,28 @@ public class ZCashClientCaller
 		throw new WalletCallException("Unexpected response from wallet: " + strResult);
 	}
 	
+	public synchronized JsonObject getMigrationInfo()
+			throws WalletCallException, IOException, InterruptedException
+		{
+
+			String objResponse = this.executeCommandAndGetSingleStringResponse("z_getmigrationstatus");
+			JsonValue response = null;
+			try
+			{
+				response = Json.parse(objResponse);
+			} catch (ParseException pe)
+			{
+			  	throw new WalletCallException(objResponse + "\n" + pe.getMessage() + "\n", pe);
+			}
+
+			if (response.isObject())
+			{
+				return response.asObject();
+			} else
+			{
+				throw new WalletCallException("Unexpected non-object response from wallet: " + response.toString());
+			}
+		}
 
 	private JsonObject executeCommandAndGetJsonObject(String command1, String command2)
 		throws WalletCallException, IOException, InterruptedException
