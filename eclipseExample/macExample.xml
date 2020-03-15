@@ -130,7 +130,7 @@
 		<fx:application id="fxApplication"
 			name="ZECmate"
 			mainClass="com.vaklinov.zcashui.ZCashUI"
-			version="1.5.0"
+			version="1.6.0"
 		/>
 	
 		<mkdir dir="build/classes/META-INF" />
@@ -146,7 +146,7 @@
 			<manifest>
 				<attribute name="Implementation-Vendor" value="Zel Technologies GmbH"/>
 				<attribute name="Implementation-Title" value="ZECmate"/>
-				<attribute name="Implementation-Version" value="1.5.0"/>
+				<attribute name="Implementation-Version" value="1.6.0"/>
 				<attribute name="JavaFX-Feature-Proxy" value="None"/>
 			</manifest>
 		</fx:jar>
