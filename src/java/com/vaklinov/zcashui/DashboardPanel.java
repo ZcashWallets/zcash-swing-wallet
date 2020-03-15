@@ -920,12 +920,13 @@ public class DashboardPanel
 		{
 			JsonObject data = this.zcashDataGatheringThread.getLastData();
 			JsonObject rates = new JsonObject();
-			JsonObject cmc = new JsonObject();
+			JsonObject coingecko = new JsonObject();
+			boolean exchangeDataExist = false;
 			if (data == null)
 			{
 				data = new JsonObject();
 				rates = new JsonObject();
-				cmc = new JsonObject(); 
+				coingecko = new JsonObject(); 
 			} else {
 				if (data.get("rates") == null) {
 					rates = new JsonObject();
@@ -933,10 +934,11 @@ public class DashboardPanel
 					Log.info(data.get("rates").toString());
 					rates = data.get("rates").asObject();
 				}
-				if (data.get("cmc") == null) {
-					cmc = new JsonObject();
+				if (data.get("coingecko") == null) {
+					coingecko = new JsonObject();
 				} else {
-					cmc = data.get("cmc").asObject();
+					coingecko = data.get("coingecko").asObject();
+					exchangeDataExist = true;
 				}
 			}
 
@@ -955,23 +957,44 @@ public class DashboardPanel
 					this.lastCurrencyPrice = priceD;
 				} catch (NumberFormatException nfe) { /* Do nothing */ }
 			}
-			
-			String usdMarketCap = cmc.getString("market_cap_usd", "N/A");
-			try
-			{
-				Double usdMarketCapD = Double.parseDouble(usdMarketCap) / 1000000;
-				usdMarketCap = new DecimalFormat("########0.000").format(usdMarketCapD) + " million";
-			} catch (NumberFormatException nfe) { /* Do nothing */ }
-			
+
+			Log.info(coingecko.toString());
+			JsonObject marketCap = null;
+			Double usdMarketCapAux = null;
+			Double btcValueAux = null;
+			Double percentageLast24Aux = null;
+			Double percentageLast7dAux = null;
+			String usdMarketCap = "N/A";
+			String btcValue = "N/A";
+			String percentageLast24 = "N/A";
+			String percentageLast7d = "N/A";
+
+			if(exchangeDataExist) {
+				JsonObject marketData = coingecko.get("market_data").asObject();
+				marketCap = marketData.get("market_cap").asObject();
+				usdMarketCapAux = marketCap.getDouble("usd", 0);
+				btcValueAux = marketData.get("current_price").asObject().getDouble("btc", 0);
+				percentageLast24Aux = marketData.getDouble("price_change_percentage_24h", 0);
+				percentageLast7dAux = marketData.getDouble("price_change_percentage_7d", 0);
+				try {
+					Double usdMarketCapD = usdMarketCapAux / 1000000;
+					usdMarketCap = new DecimalFormat("########0.000").format(usdMarketCapD) + " million";
+					btcValue = new DecimalFormat("########0.00000000").format(btcValueAux);
+					percentageLast24 = percentageLast24Aux.toString();
+					percentageLast7d = percentageLast7dAux.toString();
+				} catch (NumberFormatException nfe) {
+					/* Do nothing */ }
+			}
+
 			// Query the object for individual fields
 			String currencyMessage = langUtil.getString("panel.dashboard.marketcap.price.currency") + ZcashXUI.currency + ":";
 			String tableData[][] = new String[][]
 			{
 				{ currencyMessage,     lastCurrencyPrice == null ? "N/A" : Double.toString(price)},
-				{ langUtil.getString("panel.dashboard.marketcap.price.btc"),     cmc.getString("price_btc",          "N/A") },
-				{ langUtil.getString("panel.dashboard.marketcap.capitalisation"), usdMarketCap },
-				{ langUtil.getString("panel.dashboard.marketcap.daily.change"), cmc.getString("percent_change_24h", "N/A") + "%"},
-				{ langUtil.getString("panel.dashboard.marketcap.weekly.change"), cmc.getString("percent_change_7d", "N/A") + "%"},
+				{ langUtil.getString("panel.dashboard.marketcap.price.btc"), exchangeDataExist == true ? btcValue : "N/A"},
+				{ langUtil.getString("panel.dashboard.marketcap.capitalisation"), exchangeDataExist == true  ? usdMarketCap : "N/A" },
+				{ langUtil.getString("panel.dashboard.marketcap.daily.change"), exchangeDataExist == true ? percentageLast24 + "%" : "N/A" },
+				{ langUtil.getString("panel.dashboard.marketcap.weekly.change"), exchangeDataExist == true ? percentageLast7d + "%" : "N/A" },
 			};
 
 			return tableData;
@@ -991,22 +1014,24 @@ public class DashboardPanel
 			
 			try
 			{
-				URL u = new URL("https://api.coinmarketcap.com/v1/ticker/zcash");
+				URL u = new URL("https://api.coingecko.com/api/v3/coins/zcash?tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false");
 				HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-				huc.setConnectTimeout(2019);
+				huc.setConnectTimeout(4500);
 				int responseCode = huc.getResponseCode();
 
  				if (responseCode != HttpURLConnection.HTTP_OK) {
-					Log.warning("https://api.coinmarketcap.com/v1/ticker/zcash");
+					Log.warning("Could not connect to https://api.coingecko.com/api/v3/coins/zcash?tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false responseCode:"+responseCode);
 				}
 				else {
 					Reader r = new InputStreamReader(u.openStream(), "UTF-8");
-					JsonArray ar = Json.parse(r).asArray();
-					data.add("cmc", ar.get(0).asObject());
+					JsonObject exchange = Json.parse(r).asObject();
+					Log.info("CoinGecko readed");
+					Log.info(exchange.toString());
+					data.add("coingecko", exchange);
 				}
 			} catch (Exception ioe)
 			{
-				Log.warning("Could not obtain ZEC exchange information from coinmarketcap.com due to: {0} {1}", 
+				Log.warning("Could not obtain ZEC exchange information from coingecko.com due to: {0} {1}", 
 						    ioe.getClass().getName(), ioe.getMessage());
 			}
 
