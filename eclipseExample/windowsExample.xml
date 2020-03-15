@@ -31,6 +31,17 @@
 			</fileset>
 		</copy>
 	
+		<copy todir="externalLibs">
+			<fileset dir="C:\Users\kment\Source\Repos\ZECmate-swing-wallet\lib">
+				<filename name="zxing-javase-3.3.3.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="externalLibs">
+			<fileset dir="C:\Users\kment\Source\Repos\ZECmate-swing-wallet\lib">
+				<filename name="zxing-core-3.3.3.jar"/>
+			</fileset>
+		</copy>
+
 		<mkdir dir="project" />
 		<copy todir="project">
 			<fileset dir="C:\Users\kment\Source\Repos\ZECmate-swing-wallet">
@@ -56,6 +67,8 @@
 			<fileset dir="externalLibs">
 				<include name="sqlite-jdbc-3.21.0.jar"/>
 				<include name="bitcoinj-core-0.14.5.jar"/>
+				<include name="zxing-javase-3.3.3.jar"/>
+				<include name="zxing-core-3.3.3.jar"/>
 			</fileset>
 		</copy>
 	
@@ -118,7 +131,7 @@
 		<fx:application id="fxApplication"
 			name="ZECmate"
 			mainClass="com.vaklinov.zcashui.ZCashUI"
-			version="1.0.0"
+			version="1.6.0"
 		/>
 	
 		<mkdir dir="build/classes/META-INF" />
@@ -134,7 +147,7 @@
 			<manifest>
 				<attribute name="Implementation-Vendor" value="Zel Technologies GmbH"/>
 				<attribute name="Implementation-Title" value="ZECmate"/>
-				<attribute name="Implementation-Version" value="1.0.0"/>
+				<attribute name="Implementation-Version" value="1.6.0"/>
 				<attribute name="JavaFX-Feature-Proxy" value="None"/>
 			</manifest>
 		</fx:jar>
